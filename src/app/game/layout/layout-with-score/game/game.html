@@ -1,0 +1,26 @@
+<app-layout-with-score>
+  @if (game; as g) {
+    @for (round of g.rounds; track round.id; let index = $index) {
+      <div class="row">
+        <div class="col-2">Раунд{{ index + 1 }}:</div>
+        <div class="col-8">{{ round.name }}</div>
+        <div class="col-2 d-flex align-items-center">
+          <button type="button" class="btn btn-primary" (click)="toRound(g.id, round.id)">
+            Играть
+          </button>
+        </div>
+      </div>
+    }
+  }
+  <div class="row">
+    <div class="col-2"></div>
+    <div class="col-8">Супер раунд</div>
+    <div class="col-2">
+      <button type="button" class="btn btn-primary" (click)="toSuperRound(game?.id ?? '')">
+        Играть
+      </button>
+    </div>
+  </div>
+</app-layout-with-score>
+
+<audio src="/assets/sounds/system/BeginRound.mp3" autoplay></audio>

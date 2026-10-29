@@ -1,0 +1,105 @@
+<app-layout-with-score>
+  <div class="row h-100 align-items-center">
+    @if (state === QuestionState.TYPE) {
+      <div
+        class="col h-100 d-flex justify-content-center align-items-center full-click"
+        (click)="showTopic()"
+      >
+        @if (question?.type === QuestionTypes.AUCTION) {
+          <div>
+            <h1>Аукцион</h1>
+            <audio src="/assets/sounds/system/Auction.mp3" autoplay></audio>
+          </div>
+        }
+        @if (question?.type === QuestionTypes.CAT) {
+          <div>
+            <h1>Кот в мешке</h1>
+            <audio src="/assets/sounds/system/Cat.mp3" autoplay></audio>
+          </div>
+        }
+      </div>
+    }
+    @if (state === QuestionState.TOPIC) {
+      <div
+        class="col h-100 d-flex justify-content-center align-items-center full-click"
+        (click)="showQuestion()"
+      >
+        <h1>{{ question?.topic }}</h1>
+      </div>
+    }
+    @if (state === QuestionState.QUESTION) {
+      <div class="col text-center">
+        <h1>{{ question?.text }}</h1>
+        @if (question?.image?.length) {
+          <div class="row">
+            @for (img of question.image; track $index) {
+              <div class="col d-flex justify-content-center align-items-center">
+                <img src="/assets/images/{{ img }}" alt="Не правильно указана фотография =(" />
+              </div>
+            }
+          </div>
+        }
+        @if (question?.sound) {
+          <div>
+            <audio src="/assets/sounds/{{ question.sound }}" controls></audio>
+          </div>
+        }
+        @if (question?.type === QuestionTypes.SUPER) {
+          <div>
+            <audio src="/assets/sounds/system/Super.mp3" controls></audio>
+          </div>
+        }
+        <div [formGroup]="formGroup" class="row">
+          @for (player of players; track player.id) {
+            <div class="col">
+              <div class="card-body">
+                <h5 class="card-title">{{ player.name }}</h5>
+                @if (question?.type !== QuestionTypes.REGULAR) {
+                  <div class="mb-3">
+                    <input [formControlName]="player.id" class="form-control" placeholder="Ставка" />
+                  </div>
+                }
+                <div class="btn-group">
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    [disabled]="answeredUsersMap.get(player.id)"
+                    (click)="updateScore(player.id, true)"
+                  >
+                    Ответил
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    [disabled]="answeredUsersMap.get(player.id)"
+                    (click)="updateScore(player.id, false)"
+                  >
+                    Ошибся
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary" (click)="showAnswer()">
+            Показать ответ
+          </button>
+        </div>
+      </div>
+    }
+    @if (state === QuestionState.ANSWER) {
+      <div class="col text-center">
+        <h1>{{ question?.answer }}</h1>
+        @if (question?.answerImage) {
+          <img src="/assets/images/{{ question.answerImage }}" alt="Не правильно указана фотография =(" />
+        }
+        <div>
+          <button type="button" class="btn btn-primary m-2" (click)="goToQuestions()">
+            К вопросам
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</app-layout-with-score>

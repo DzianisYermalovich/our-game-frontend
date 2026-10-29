@@ -1,0 +1,20 @@
+<header class="navbar bg-light justify-content-start game-header">
+  <a [routerLink]="['/']" class="navbar-brand"> OurGame </a>
+  <div class="navbar-nav">
+    <a
+      [routerLink]="['/game']"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-item nav-link"
+    >
+      Список игр
+    </a>
+  </div>
+</header>
+<div class="container-fluid">
+  <div class="row game-content">
+    <div class="col">
+      <ng-content />
+    </div>
+  </div>
+</div>

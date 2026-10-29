@@ -1,4 +1,4 @@
-@import "collors";
+@use 'collors' as *;
 
 .question {
   cursor: pointer;

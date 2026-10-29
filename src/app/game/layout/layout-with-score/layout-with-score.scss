@@ -1,0 +1,7 @@
+@use '../../../../assets/styles/common/dimensions' as *;
+
+.game-score {
+  position: sticky;
+  top: $dimension-header;
+  height: calc(100vh - #{$dimension-header});
+}

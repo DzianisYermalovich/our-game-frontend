@@ -1,0 +1,35 @@
+<app-layout>
+  <h2 class="text-center">Сохранённые игры</h2>
+  @if (games().length > 0) {
+    @for (game of games(); track game.id) {
+      <div class="row list-row">
+        <div class="col-3">
+          <div>ID:{{ game.id }}, {{ game.name }}</div>
+          <div>Автор: {{ game.author.name }}</div>
+        </div>
+        <div class="col-6">
+          <div class="row">
+            @for (player of game.players; track player.id) {
+              <div class="col">
+                <div>{{ player.name }}</div>
+                <div>{{ player.score }}</div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="col-3 d-flex align-items-center">
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary" (click)="continueGame(game.id)">
+              Продолжить игру
+            </button>
+            <button type="button" class="btn btn-danger" (click)="deleteGame(game.id)">
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="text-center">У вас нет сохранённых игр =(</div>
+  }
+</app-layout>

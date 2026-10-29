@@ -1,0 +1,17 @@
+<app-layout-with-score>
+  @if (superRound; as sr) {
+    @for (question of sr.questions; track question.id) {
+      <div
+        [ngStyle]="{ 'height.%': 100 / sr.questions.length }"
+        class="row"
+        (click)="goToQuestion(gameId, question.id)"
+      >
+        <div class="col h-100 d-flex align-items-center justify-content-center question">
+          @if (!hideQuestionMap.get(question.id)) {
+            <h2 [ngClass]="{ 'answered-question': question.isAnswered }">{{ question.topic }}</h2>
+          }
+        </div>
+      </div>
+    }
+  }
+</app-layout-with-score>

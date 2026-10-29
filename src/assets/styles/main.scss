@@ -1,6 +1,6 @@
 /* vendor libraries */
-@import "~bootstrap/scss/bootstrap";
+@use 'bootstrap/scss/bootstrap';
 
 /* common */
-@import "common/common";
-@import "common/typography";
+@use 'common/common';
+@use 'common/typography';

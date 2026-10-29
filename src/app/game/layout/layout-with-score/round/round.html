@@ -1,0 +1,25 @@
+<app-layout-with-score>
+  @if (round; as r) {
+    @for (topic of r.topics; track topic.id) {
+      <div [ngStyle]="{ 'height.%': 100 / r.topics.length }" class="row align-items-center">
+        <div
+          [ngStyle]="{ 'width.%': 100 / (topic.questions.length + 1) }"
+          class="col h-100 d-flex align-items-center"
+        >
+          <h4>{{ topic.name }}</h4>
+        </div>
+        @for (question of topic.questions; track question.id) {
+          <div
+            [ngStyle]="{ 'width.%': 100 / (topic.questions.length + 1) }"
+            class="col h-100 d-flex align-items-center justify-content-center question"
+            (click)="goToQuestion(gameId, roundId, question.id)"
+          >
+            @if (!question.isAnswered) {
+              <h4>{{ getQuestionValue(question.id) }}</h4>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</app-layout-with-score>

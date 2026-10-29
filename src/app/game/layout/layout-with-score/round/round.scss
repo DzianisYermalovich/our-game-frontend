@@ -1,0 +1,12 @@
+@use '../../../../../assets/styles/common/collors' as *;
+
+.row {
+  border-bottom: 1px solid $color-white;
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.col {
+  border-right: 1px solid $color-white;
+}

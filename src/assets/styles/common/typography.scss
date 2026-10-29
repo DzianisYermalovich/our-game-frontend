@@ -1,6 +1,7 @@
-@import "collors";
+@use 'collors' as *;
 
 // Common
-html, body {
+html,
+body {
   color: $color-white;
 }

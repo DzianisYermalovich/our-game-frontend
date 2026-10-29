@@ -1,0 +1,22 @@
+<app-layout>
+  <div class="row">
+    <div class="col-10">
+      <ng-content />
+    </div>
+    <div class="col-2 game-score">
+      @for (player of players(); track player.id) {
+        <h5>{{ player.name }}: {{ player.score }}</h5>
+      }
+      <div>
+        <a
+          class="btn btn-primary"
+          [routerLink]="['/game', gameId]"
+          routerLinkActive="d-none"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          К игре
+        </a>
+      </div>
+    </div>
+  </div>
+</app-layout>
