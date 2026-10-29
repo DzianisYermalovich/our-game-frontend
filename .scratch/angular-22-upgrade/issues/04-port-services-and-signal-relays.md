@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 04 — Port services and signal relays
 
@@ -26,3 +26,10 @@ Port the 4 localStorage data services + 2 relay services to Angular 22 / signals
 
 Services compile strict; zero `.subscribe(` outside game.service.ts; no Subject/BehaviorSubject
 remains in the app.
+
+## Comments
+
+Done (commit 1e56226). Signal relays: `BalloonErrorService.raise()` / `ScoreUpdateService.bump()`.
+Deviations from verbatim behavior (all in already-broken scenarios where the old code crashed):
+missing game/player now degrades gracefully instead of throwing; `updateQuestion` -1-index guards
+added; unused `questionService` injection dropped from PlayerService.

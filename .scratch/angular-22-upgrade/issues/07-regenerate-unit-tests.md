@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 07 — Regenerate unit tests
 
@@ -22,3 +22,8 @@ with the old src tree. Regenerate minimal boot specs under Angular 22's default 
 ## Acceptance
 
 `ng test` green, CI-less local run.
+
+## Comments
+
+Done (commit e43c5eb). Runner verified: `@angular/build:unit-test` (Vitest 5 + jsdom),
+globals via `types: ["vitest/globals"]`, no zone-testing setup. 36 tests / 16 files green.

@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 08 — Bootstrap 5 migration
 
@@ -22,3 +22,10 @@ Bootstrap 4 → 5.3, visual parity, CSS-only (no BS JS plugins were ever loaded)
 
 Visual parity on: home, game list, game, round grid, super-round grid, question states
 (TYPE/TOPIC/QUESTION/ANSWER), balloon, navbar; no sass deprecation warnings.
+
+## Comments
+
+Done as part of the port commit (1e56226) — Bootstrap 5.3 + `@use` conversion landed with the
+component port so styles compiled from the start. Only two template drifts existed and both are
+fixed (form-group -> mb-3, navbar-light dropped). Screen-by-screen parity check pending —
+part of the manual smoke.

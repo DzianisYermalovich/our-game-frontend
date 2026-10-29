@@ -1,59 +1,34 @@
-# OurGameFrontend
+# OurGame — Своя игра
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
+A "Своя игра"-style quiz game frontend: players pick questions from themed boards, answer
+them, and accumulate score across rounds and a super round. Built with Angular 22 —
+standalone components, signals, zoneless change detection, strict TypeScript.
 
-## Development server
+The app runs entirely without a backend: a game is configured from a local JSON file
+(`public/assets/temp/initGame.json`) and saved games are stored in the browser's
+`localStorage` (key `games`).
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Commands
 
 ```bash
-ng generate component component-name
+npm start       # dev server at http://localhost:4200
+npm run build   # production build (application builder)
+npm test        # unit tests (Vitest + jsdom)
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Project layout
 
-```bash
-ng generate --help
-```
+- `src/app/_models`, `src/app/_enums` — game domain types (Game → Rounds → Topics → Questions, SuperRound, GameSettings, User)
+- `src/app/_services/data/local-storage` — the localStorage-backed data services
+- `src/app/_services/errors`, `src/app/_services/component-communication` — signal relays: balloon errors and score updates
+- `src/app/game`, `src/app/home`, `src/app/error` — routed screens (home, game list, game board, round, super round, question) and the error balloon
+- `src/assets/styles` — global SCSS partials; Bootstrap 5 imported in `src/assets/styles/main.scss`
+- `public/assets` — runtime assets (game config JSON, sounds)
+- `GLOSSARY.md` — domain vocabulary; `docs/adr` — architecture decisions
 
-## Building
+## Notes
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Sounds are referenced from `/assets/sounds/**`; images from `/assets/images/**` (the
+  images directory is optional and may not exist in the repo).
+- No end-to-end tests (Protractor e2e was removed with the Angular 22 migration).
+- See `.scratch/angular-22-upgrade/` for the migration spec and tickets.

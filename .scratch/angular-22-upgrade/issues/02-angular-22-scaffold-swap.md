@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 02 — Angular 22 scaffold swap
 

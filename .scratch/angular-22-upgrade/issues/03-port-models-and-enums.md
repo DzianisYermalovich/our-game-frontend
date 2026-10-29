@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 03 — Port models and enums
 
@@ -16,3 +16,8 @@ objects. Convert all 8 classes to interfaces. The only `new` site is
 
 - `_models/*` are interfaces; `_enums/*` unchanged string enums; compile clean under strict.
 - No behavioral change (types only).
+
+## Comments
+
+Done (commit 1e56226). All 8 models are interfaces; ErrorBase instantiated only as `{ description }`.
+`GameSettings.id` typed `number` (matches initGame.json, old class said string but JSON had 0).

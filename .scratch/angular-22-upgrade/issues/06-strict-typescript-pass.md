@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 06 — Strict TypeScript pass
 
@@ -22,3 +22,9 @@ Ensure `strict: true` + `strictTemplates` compile clean across the ported app.
 
 `ng build` and `ng serve` green with strict flags on; no `@ts-ignore`/`any` escapes beyond the
 FormGroup decision recorded in ticket 05.
+
+## Comments
+
+Done (commit 1e56226). Notable: the v22 scaffold no longer sets `strict: true` by default —
+added `strict` + `strictTemplates` manually. Template enum comparisons and redundant optional
+chains (NG8107) cleaned; build is warning-free.

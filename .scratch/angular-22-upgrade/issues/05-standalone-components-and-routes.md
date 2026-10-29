@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 05 — Standalone components and routes
 
@@ -32,3 +32,10 @@ Gate: **full manual game smoke** (see spec).
 
 Full game loop smokes: home → Новая игра → /game/1 → round → question → score updates without
 reload → super round → back; error balloon appears + auto-hides on bad initGame.json.
+
+## Comments
+
+Done (commit 1e56226). Component suffix kept only where the class name collides with a model
+(Game/Round/SuperRound/Question); other components use the v22 style (App, Home, Layout...).
+Enums exposed as component properties for template comparisons (strictTemplates rejects
+enum-to-string-literal comparisons). Manual smoke still pending — needs the maintainer.
