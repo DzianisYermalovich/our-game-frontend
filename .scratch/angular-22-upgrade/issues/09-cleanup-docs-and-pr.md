@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: resolved
 
 # 09 — Cleanup, docs, PR
 
