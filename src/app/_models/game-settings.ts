@@ -1,5 +1,5 @@
 export interface GameSettings {
-  id: number;
+  id: string;
   topicsInRound: number;
   questionsInTopic: number;
   superQuestions: number;

@@ -23,7 +23,7 @@ describe('GameList', () => {
       rounds: [],
       superRound: { id: 's', questions: [] },
       settings: {
-        id: 0,
+        id: '0',
         topicsInRound: 0,
         questionsInTopic: 0,
         superQuestions: 0,

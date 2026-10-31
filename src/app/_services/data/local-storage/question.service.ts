@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Question } from '../../../_models/question';
 import { GameService } from './game.service';
+import { QuestionServiceInterface } from '../question-service-interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class QuestionService {
+export class QuestionService implements QuestionServiceInterface {
   private readonly gameService = inject(GameService);
 
   public getQuestion(gameId: string, roundId: string, questionId: string): Question | undefined {

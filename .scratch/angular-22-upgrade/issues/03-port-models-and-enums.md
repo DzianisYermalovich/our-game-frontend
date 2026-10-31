@@ -21,3 +21,6 @@ objects. Convert all 8 classes to interfaces. The only `new` site is
 
 Done (commit 1e56226). All 8 models are interfaces; ErrorBase instantiated only as `{ description }`.
 `GameSettings.id` typed `number` (matches initGame.json, old class said string but JSON had 0).
+
+Maintainer correction (2026-10-31): `GameSettings.id` is `string`, not `number` — interface,
+`initGame.json` (`"id": "0"`), and test fixtures aligned.

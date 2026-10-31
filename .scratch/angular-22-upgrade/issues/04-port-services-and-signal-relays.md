@@ -33,3 +33,7 @@ Done (commit 1e56226). Signal relays: `BalloonErrorService.raise()` / `ScoreUpda
 Deviations from verbatim behavior (all in already-broken scenarios where the old code crashed):
 missing game/player now degrades gracefully instead of throwing; `updateQuestion` -1-index guards
 added; unused `questionService` injection dropped from PlayerService.
+
+Maintainer correction (2026-10-31): the four data interfaces (game/player/question/round) are
+restored and the localStorage services `implements` them — they exist so future data fetchers
+(only local-storage today) can be swapped in behind the same contracts.

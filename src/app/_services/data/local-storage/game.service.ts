@@ -4,13 +4,14 @@ import { Router } from '@angular/router';
 import { Game } from '../../../_models/game';
 import { ErrorBase } from '../../../_models/error-base';
 import { BalloonErrorService } from '../../errors/balloon-error.service';
+import { GameServiceInterface } from '../game-service-interface';
 
 const GAMES_KEY = 'games';
 
 @Injectable({
   providedIn: 'root',
 })
-export class GameService {
+export class GameService implements GameServiceInterface {
   private readonly http = inject(HttpClient);
   private readonly errorService = inject(BalloonErrorService);
   private readonly router = inject(Router);

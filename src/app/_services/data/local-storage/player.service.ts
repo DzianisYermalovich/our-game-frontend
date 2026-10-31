@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { GameService } from './game.service';
 import { User } from '../../../_models/user';
 import { ScoreUpdateService } from '../../component-communication/score-update.service';
+import { PlayerServiceInterface } from '../player-service-interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PlayerService {
+export class PlayerService implements PlayerServiceInterface {
   private readonly gameService = inject(GameService);
   private readonly scoreUpdateService = inject(ScoreUpdateService);
 

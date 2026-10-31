@@ -753,7 +753,7 @@
     ]
   },
   "settings": {
-    "id": 0,
+    "id": "0",
     "topicsInRound": 6,
     "questionsInTopic": 5,
     "superQuestions": 7,

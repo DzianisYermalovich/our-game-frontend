@@ -35,7 +35,7 @@ export function makeValidGame(id = '1'): Game {
       ],
     },
     settings: {
-      id: 0,
+      id: '0',
       topicsInRound: 1,
       questionsInTopic: 2,
       superQuestions: 1,
