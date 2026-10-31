@@ -1,13 +1,16 @@
-import { Injectable } from '@angular/core';
-import {BaseComponentCommunication} from '../component-communication/base-component-communication';
-import {ErrorBase} from '../../_models/error-base';
+import { Injectable, signal } from '@angular/core';
+import { ErrorBase } from '../../_models/error-base';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class BalloonErrorService extends BaseComponentCommunication<ErrorBase> {
+export class BalloonErrorService {
+  private readonly errorState = signal<ErrorBase | null>(null);
 
-  constructor() {
-    super();
+  /** The current error, or null when no error is shown. */
+  public readonly error = this.errorState.asReadonly();
+
+  public raise(description: string): void {
+    this.errorState.set({ description });
   }
 }

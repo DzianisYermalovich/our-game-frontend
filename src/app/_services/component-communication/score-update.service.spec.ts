@@ -1,12 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ScoreUpdateService } from './score-update.service';
 
 describe('ScoreUpdateService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+  let service: ScoreUpdateService;
 
-  it('should be created', () => {
-    const service: ScoreUpdateService = TestBed.get(ScoreUpdateService);
-    expect(service).toBeTruthy();
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ScoreUpdateService);
+  });
+
+  it('starts at version 0 and bumps monotonically', () => {
+    expect(service.version()).toBe(0);
+    service.bump();
+    expect(service.version()).toBe(1);
+    service.bump();
+    expect(service.version()).toBe(2);
   });
 });

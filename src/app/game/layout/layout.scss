@@ -1,0 +1,14 @@
+@use '../../../assets/styles/common/collors' as *;
+@use '../../../assets/styles/common/dimensions' as *;
+
+.game-header {
+  position: sticky;
+  top: 0;
+  z-index: 1500;
+  max-height: $dimension-header;
+}
+
+.game-content {
+  min-height: calc(100vh - #{$dimension-header});
+  background-color: $color-main;
+}

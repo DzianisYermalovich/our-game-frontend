@@ -1,0 +1,13 @@
+@use '../../assets/styles/common/collors' as *;
+
+.base-row {
+  min-height: 100vh;
+  background-color: $color-main;
+}
+
+.btn {
+  margin-right: 10px;
+  &:last-of-type {
+    margin-right: 0;
+  }
+}

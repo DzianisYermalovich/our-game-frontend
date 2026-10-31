@@ -1,0 +1,5 @@
+@if (show() && error(); as e) {
+  <div class="alert alert-danger text-center" role="alert">
+    {{ e.description }}
+  </div>
+}

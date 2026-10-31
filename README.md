@@ -1,27 +1,34 @@
-# OurGameFrontend
+# OurGame — Своя игра
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.0.
+A "Своя игра"-style quiz game frontend: players pick questions from themed boards, answer
+them, and accumulate score across rounds and a super round. Built with Angular 22 —
+standalone components, signals, zoneless change detection, strict TypeScript.
 
-## Development server
+The app runs entirely without a backend: a game is configured from a local JSON file
+(`public/assets/temp/initGame.json`) and saved games are stored in the browser's
+`localStorage` (key `games`).
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Commands
 
-## Code scaffolding
+```bash
+npm start       # dev server at http://localhost:4200
+npm run build   # production build (application builder)
+npm test        # unit tests (Vitest + jsdom)
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Project layout
 
-## Build
+- `src/app/_models`, `src/app/_enums` — game domain types (Game → Rounds → Topics → Questions, SuperRound, GameSettings, User)
+- `src/app/_services/data/local-storage` — the localStorage-backed data services
+- `src/app/_services/errors`, `src/app/_services/component-communication` — signal relays: balloon errors and score updates
+- `src/app/game`, `src/app/home`, `src/app/error` — routed screens (home, game list, game board, round, super round, question) and the error balloon
+- `src/assets/styles` — global SCSS partials; Bootstrap 5 imported in `src/assets/styles/main.scss`
+- `public/assets` — runtime assets (game config JSON, sounds)
+- `GLOSSARY.md` — domain vocabulary; `docs/adr` — architecture decisions
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Notes
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+- Sounds are referenced from `/assets/sounds/**`; images from `/assets/images/**` (the
+  images directory is optional and may not exist in the repo).
+- No end-to-end tests (Protractor e2e was removed with the Angular 22 migration).
+- See `.scratch/angular-22-upgrade/` for the migration spec and tickets.

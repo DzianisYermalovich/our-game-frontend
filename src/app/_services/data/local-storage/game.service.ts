@@ -1,70 +1,62 @@
-import { Injectable } from '@angular/core';
-import {Game} from '../../../_models/game';
-import {HttpClient} from '@angular/common/http';
-import {BalloonErrorService} from '../../errors/balloon-error.service';
-import {ErrorBase} from '../../../_models/error-base';
-import {GameServiceInterface} from '../game-service-interface';
-import {Router} from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Game } from '../../../_models/game';
+import { ErrorBase } from '../../../_models/error-base';
+import { BalloonErrorService } from '../../errors/balloon-error.service';
+import { GameServiceInterface } from '../game-service-interface';
+
+const GAMES_KEY = 'games';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GameService implements GameServiceInterface {
+  private readonly http = inject(HttpClient);
+  private readonly errorService = inject(BalloonErrorService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private http: HttpClient,
-    private errorService: BalloonErrorService,
-    private router: Router
-  ) { }
-
-  public create(game: Game) {
-    const games: Array<Game> = this.getAll();
+  public create(game: Game): Game | null {
+    const games = this.getAll();
     if (this.checkIsGameExist(game.id)) {
       this.sendError(`Игра с Id ${game.id} уже существует`);
       return null;
     } else {
       games.push(game);
-      localStorage.setItem('games', JSON.stringify(games));
+      localStorage.setItem(GAMES_KEY, JSON.stringify(games));
       return game;
     }
   }
 
   public delete(id: string): void {
     const games = this.getAll();
-    const gameIndex = games.findIndex(item => item.id === id);
+    const gameIndex = games.findIndex((item) => item.id === id);
     games.splice(gameIndex, 1);
-    localStorage.setItem('games', JSON.stringify(games));
+    localStorage.setItem(GAMES_KEY, JSON.stringify(games));
   }
 
-  public getAll(): Array<Game> {
-    let games: Array<Game>;
-    games = JSON.parse(localStorage.getItem('games')) as Array<Game>;
-    if (!games) {
-      games = new Array<Game>();
-    }
-    return games;
+  public getAll(): Game[] {
+    const games = JSON.parse(localStorage.getItem(GAMES_KEY) ?? '[]') as Game[];
+    return games ?? [];
   }
 
-  public getById(id: string): Game {
-    const games = this.getAll();
-    return games.find(game => game.id === id);
+  public getById(id: string): Game | undefined {
+    return this.getAll().find((game) => game.id === id);
   }
 
-  public update(game: Game) {
+  public update(game: Game): Game | null {
     return null;
   }
 
   public initGameFromJson(): void {
-    let game: Game;
-    this.http.get<Game>('assets/temp/initGame.json').subscribe(
-      resp => {
-        game = resp;
+    this.http.get<Game>('assets/temp/initGame.json').subscribe({
+      next: (game) => {
         if (this.isGameValid(game) && this.create(game)) {
           this.router.navigate(['game', game.id]);
         }
       },
-      () => this.sendError('Ошибка при загрузке файла конфигураций!')
-    );
+      error: () => this.sendError('Ошибка при загрузке файла конфигураций!'),
+    });
   }
 
   private isGameValid(game: Game): boolean {
@@ -97,18 +89,10 @@ export class GameService implements GameServiceInterface {
   }
 
   private checkIsGameExist(id: string): boolean {
-    const games = this.getAll();
-    if (games && games.find(game => game.id === id)) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.getAll().some((game) => game.id === id);
   }
 
   private sendError(errorText: string): void {
-    const error = new ErrorBase();
-    error.description = errorText;
-    this.errorService.setData(error);
-    this.errorService.sendData();
+    this.errorService.raise(errorText);
   }
 }

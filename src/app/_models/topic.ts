@@ -1,9 +1,7 @@
-import {Question} from './question';
+import { Question } from './question';
 
-export class Topic {
-  constructor(
-    public id: string = null,
-    public name: string = null,
-    public questions: Array<Question> = new Array<Question>()
-  ) {}
+export interface Topic {
+  id: string;
+  name: string;
+  questions: Question[];
 }

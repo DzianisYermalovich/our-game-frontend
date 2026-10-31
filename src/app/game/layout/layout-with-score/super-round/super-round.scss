@@ -1,0 +1,13 @@
+@use '../../../../../assets/styles/common/collors' as *;
+
+.row {
+  border-bottom: 1px solid $color-white;
+  border-right: 1px solid $color-white;
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.answered-question {
+  text-decoration: line-through;
+}

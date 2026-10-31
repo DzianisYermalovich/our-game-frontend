@@ -1,15 +1,13 @@
-import {QuestionTypes} from '../_enums/question-types.enum';
+import { QuestionTypes } from '../_enums/question-types.enum';
 
-export class Question {
-  constructor(
-    public id: string = null,
-    public type: QuestionTypes = null,
-    public topic: string = null,
-    public text: string = null,
-    public answer: string = null,
-    public image: Array<string> = new Array<string>(),
-    public sound: string = null,
-    public answerImage: string = null,
-    public isAnswered: boolean = null
-  ) {}
+export interface Question {
+  id: string;
+  type: QuestionTypes;
+  topic?: string;
+  text: string;
+  answer: string;
+  image?: string[];
+  sound?: string;
+  answerImage?: string;
+  isAnswered?: boolean;
 }

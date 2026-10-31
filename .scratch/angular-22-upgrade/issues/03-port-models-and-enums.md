@@ -1,0 +1,26 @@
+Status: resolved
+
+# 03 — Port models and enums
+
+Port `src/app/_enums` (3 string enums: question-state, question-types, roles) and
+`src/app/_models` (8 files) to strict TypeScript under Angular 22.
+
+## Key fact
+
+The model classes (game, round, topic, question, super-round, game-settings, user,
+error-base) are **never constructed anywhere** — JSON from initGame.json arrives as plain
+objects. Convert all 8 classes to interfaces. The only `new` site is
+`game.service.ts:109 new ErrorBase()` → becomes an object literal `{ description }`.
+
+## Acceptance
+
+- `_models/*` are interfaces; `_enums/*` unchanged string enums; compile clean under strict.
+- No behavioral change (types only).
+
+## Comments
+
+Done (commit 1e56226). All 8 models are interfaces; ErrorBase instantiated only as `{ description }`.
+`GameSettings.id` typed `number` (matches initGame.json, old class said string but JSON had 0).
+
+Maintainer correction (2026-10-31): `GameSettings.id` is `string`, not `number` — interface,
+`initGame.json` (`"id": "0"`), and test fixtures aligned.

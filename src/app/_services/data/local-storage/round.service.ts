@@ -1,23 +1,20 @@
-import { Injectable } from '@angular/core';
-import {RoundServiceInterface} from '../round-service-interface';
-import {Round} from '../../../_models/round';
-import {GameService} from './game.service';
-import {SuperRound} from '../../../_models/super-round';
+import { Injectable, inject } from '@angular/core';
+import { Round } from '../../../_models/round';
+import { SuperRound } from '../../../_models/super-round';
+import { GameService } from './game.service';
+import { RoundServiceInterface } from '../round-service-interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoundService implements RoundServiceInterface {
+  private readonly gameService = inject(GameService);
 
-  constructor(
-    private gameService: GameService
-  ) { }
-
-  public getRound(gameId, roundId): Round {
-    return this.gameService.getById(gameId).rounds.find(round => round.id === roundId);
+  public getRound(gameId: string, roundId: string): Round | undefined {
+    return this.gameService.getById(gameId)?.rounds.find((round) => round.id === roundId);
   }
 
-  getSuperRound(gameId): SuperRound {
-    return this.gameService.getById(gameId).superRound;
+  public getSuperRound(gameId: string): SuperRound | undefined {
+    return this.gameService.getById(gameId)?.superRound;
   }
 }

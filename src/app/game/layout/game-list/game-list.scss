@@ -1,0 +1,11 @@
+@use '../../../../assets/styles/common/collors' as *;
+
+.list-row {
+  border-bottom: solid 1px $color-white;
+  &:first-of-type {
+    border-top: solid 1px $color-white;
+  }
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
