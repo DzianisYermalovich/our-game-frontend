@@ -2,7 +2,7 @@ import { Game } from '../app/_models/game';
 import { QuestionTypes } from '../app/_enums/question-types.enum';
 import { Roles } from '../app/_enums/roles.enum';
 
-/** A minimal Game that passes GameService.isGameValid. */
+/** A minimal Game that passes validateGame. */
 export function makeValidGame(id = '1'): Game {
   return {
     id,

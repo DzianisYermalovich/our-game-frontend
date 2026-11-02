@@ -11,4 +11,6 @@ export interface Game {
   rounds: Round[];
   superRound: SuperRound;
   settings: GameSettings;
+  /** Game-level media refs, optional: present only on imported packs. */
+  images?: string[];
 }

@@ -5,6 +5,7 @@ import { Game } from '../../../_models/game';
 import { ErrorBase } from '../../../_models/error-base';
 import { BalloonErrorService } from '../../errors/balloon-error.service';
 import { GameServiceInterface } from '../game-service-interface';
+import { validateGame } from '../../../_validators/game-validator';
 
 const GAMES_KEY = 'games';
 
@@ -51,41 +52,15 @@ export class GameService implements GameServiceInterface {
   public initGameFromJson(): void {
     this.http.get<Game>('assets/temp/initGame.json').subscribe({
       next: (game) => {
-        if (this.isGameValid(game) && this.create(game)) {
+        const validationError = validateGame(game);
+        if (validationError) {
+          this.sendError(validationError);
+        } else if (this.create(game)) {
           this.router.navigate(['game', game.id]);
         }
       },
       error: () => this.sendError('Ошибка при загрузке файла конфигураций!'),
     });
-  }
-
-  private isGameValid(game: Game): boolean {
-    if (!game.rounds || game.rounds.length !== game.settings.rounds) {
-      this.sendError(`Неправильное колличство раундов в файле-конфигурации`);
-      return false;
-    }
-    for (const round of game.rounds) {
-      if (!round.topics || round.topics.length !== game.settings.topicsInRound) {
-        this.sendError(`Неправильное колличство тем в раунде ${round.id} у файла-конфигурации`);
-        return false;
-      }
-      for (const topic of round.topics) {
-        if (!topic.questions || topic.questions.length !== game.settings.questionsInTopic) {
-          this.sendError(`Неправильное колличство вопросов в теме ${topic.id} у файла-конфигурации`);
-          return false;
-        }
-      }
-    }
-    if (!game.superRound || game.superRound.questions.length !== game.settings.superQuestions) {
-      this.sendError(`Неправильное колличство вопросов в супер раунде у файла-конфигурации`);
-      return false;
-    }
-    if (!game.settings.minPrice) {
-      this.sendError(`Не указана минимальная стоимость в настройках у файла-конфигурации`);
-      return false;
-    }
-
-    return true;
   }
 
   private checkIsGameExist(id: string): boolean {
