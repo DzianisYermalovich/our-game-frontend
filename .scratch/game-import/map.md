@@ -4,8 +4,10 @@
 
 A locked spec under `.scratch/game-import/spec.md`: Games enter localStorage by user file
 import (the app ships no game data; `assets/temp/` gone), per-question media travels with
-the imported Game and lives browser-side (mechanism decided), and an export/backup story is
+the imported Game and lives browser-side (mechanism: ADR 0002), and an export/backup story is
 decided. Ready to hand to a normal implementation effort.
+
+**Reached 2026-11-02** — all tickets resolved, spec locked (see ticket 07).
 
 ## Notes
 
@@ -25,15 +27,43 @@ Settled at charting (with maintainer, 2026-11-01):
 ## Decisions so far
 
 - [Research: where imported game media lives in the browser](issues/01-research-browser-media-storage.md): IndexedDB primary (Blobs, content-hash keys, Game JSON keeps only id refs); `persist()`/`estimate()` guardrails; Chromium-only File System Access handle as quota escape; blob object URLs via `effect(onCleanup)` for templates. Findings on branch `research/browser-media-storage`.
+- [Import UX & validation](issues/02-import-ux-and-validation.md): «Новая игра» stays the
+  button; native file picker (cancel silent) → parse → validate → straight into
+  `/game/<id>`; all failures BalloonError. "Valid" = existing count checks + light field/type
+  checks + media presence (missing referenced media **blocks** import), validator extracted
+  into a shared function. Artifact shape & reference scheme stay with ticket 04; duplicate-id
+  policy stays with ticket 03; drag-and-drop out of scope.
+- [Import conflict policy](issues/03-import-conflict-policy.md): keep today's reject
+  verbatim (BalloonError «Игра с Id N уже существует», no navigation) — the author fixes
+  the JSON id and re-imports. Legacy id-"1" Games untouched; no migration story exists
+  (imported and legacy Games are the same shape in the same store). Id stays
+  user-meaningful; list display unchanged.
+- [Media travel format](issues/04-media-travel-format.md): a single **.zip** via the
+  ticket-02 picker flow — one `.json` at the zip root + media; refs are zip-root-relative
+  paths (bare filenames by convention, subfolders allowed; historical packs import
+  unchanged); unzip with fflate; stored refs stay author-facing forever (hashes internal,
+  mapping home = ticket 05); missing refs block import (ticket 02's check over the zip's
+  file set); no `/assets` fallback — legacy dead refs degrade gracefully. Export (ticket 06)
+  becomes the inverse: re-zip.
+- [Media storage mechanism](issues/05-media-storage-mechanism.md): **MediaStorage seam**
+  (S3-style keys `"<gameId>/<path>"`, put/get/deleteGame) — maintainer's reframe, recorded
+  as ADR [0002](docs/adr/0002-media-storage-seam.md); dissolves the path→hash mapping
+  (stored Game JSON stays author-verbatim). v1 = `IdbMediaStorage` (IndexedDB, Blob values,
+  prefix delete). Quota failure = atomic reject with `deleteGame()` rollback (no estimate()
+  pre-flight, maintainer's call). `persist()` after first import. Runtime: get() → Blob
+  signal → blob object URL via `effect(onCleanup)`.
+- [Export/backup story](issues/06-export-backup-story.md): «Экспортировать» button on each
+  saved-games list row → import-format zip (`game.json` verbatim + media at referenced
+  paths, fflate) named `<game name>.zip`. Round-trip guarantees **semantic identity**
+  (same id/refs/media bytes), not byte-identical JSON. Missing media = skip + warn, never
+  block (legacy Games export JSON-only). Export is the manual backup; `persist()` is the
+  only automatic guardrail; same-browser re-import trips the ticket-03 reject (expected).
+- [Assemble the locked spec](issues/07-assemble-the-locked-spec.md): spec written to
+  `.scratch/game-import/spec.md`; ADR 0003 (import-only distribution) recorded; GLOSSARY
+  gained **Game import** and **Game media**. **Destination reached** — hand the spec to a
+  normal implementation flow (to-tickets → implement).
 
 ## Not yet specified
-
-- Legacy localStorage Games (seeded by the old fetch flow, id "1"): compat/migration once
-  import-only lands — sharpens after the conflict-policy ticket resolves.
-- File System Access API / directory-picker support limits — may graduate from research +
-  travel-format tickets.
-- Oversized packs: what happens when a Game + media exceeds practical storage limits —
-  may graduate from research + storage-mechanism tickets.
 
 ## Out of scope
 

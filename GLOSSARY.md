@@ -10,6 +10,16 @@ configured from a local JSON file and stored in the browser.
 A complete quiz match configuration: its rounds, super round, players, author, and settings.
 _Avoid_: match, quiz
 
+**Game import**:
+Loading a Game into the app from a user-provided zip (Game JSON + media): parse, validate,
+store, enter. The only way game content arrives; replaced the old initGame.json fetch.
+_Avoid_: upload (nothing is sent to a server), fetch (the removed flow)
+
+**Game media**:
+The images and sounds a Game's Questions reference; imported inside the pack zip and stored
+browser-side behind MediaStorage (ADR 0002). Referenced by zip-root-relative path.
+_Avoid_: assets (`assets/` is app-shipped chrome), attachments
+
 **Round**:
 A division of a Game containing a set of Topics.
 
