@@ -1,7 +1,0 @@
-{
-  "name": "our-game-frontend",
-  "version": "0.1.2",
-  "dependencies": {
-    "express": "^4.16.3"
-  }
-}
