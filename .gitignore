@@ -43,5 +43,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Claude
-.claude
+# Claude — settings and hooks are version-controlled (git-flow guardrails),
+# everything else in .claude/ (worktrees, local settings) stays ignored
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
