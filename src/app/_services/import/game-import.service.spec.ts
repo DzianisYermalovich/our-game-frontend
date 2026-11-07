@@ -5,6 +5,8 @@ import { strToU8, zipSync } from 'fflate';
 import { GameImportService } from './game-import.service';
 import { GameService } from '../data/local-storage/game.service';
 import { BalloonErrorService } from '../errors/balloon-error.service';
+import { MEDIA_STORAGE } from '../media/media-storage';
+import { FakeMediaStorage } from '../../../testing/fake-media-storage';
 import { makeValidGame } from '../../../testing/game-fixture';
 import { Game } from '../../_models/game';
 import { QuestionTypes } from '../../_enums/question-types.enum';
@@ -45,16 +47,18 @@ describe('GameImportService', () => {
   let service: GameImportService;
   let gameService: GameService;
   let errorService: BalloonErrorService;
+  let mediaStorage: FakeMediaStorage;
   let router: Router;
 
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: MEDIA_STORAGE, useClass: FakeMediaStorage }],
     });
     service = TestBed.inject(GameImportService);
     gameService = TestBed.inject(GameService);
     errorService = TestBed.inject(BalloonErrorService);
+    mediaStorage = TestBed.inject(MEDIA_STORAGE) as FakeMediaStorage;
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
@@ -63,6 +67,11 @@ describe('GameImportService', () => {
     return errorService.error()?.description;
   }
 
+  afterEach(() => {
+    // jsdom has no StorageManager; drop any per-test stub.
+    Object.defineProperty(navigator, 'storage', { value: undefined, configurable: true });
+  });
+
   it('imports a valid pack: game stored, user navigated to it, no balloon', async () => {
     await service.importPack(makeMediaPack());
     expect(gameService.getById('1')).toEqual(makeGameWithMedia());
@@ -70,7 +79,20 @@ describe('GameImportService', () => {
     expect(errorService.error()).toBeNull();
   });
 
-  it('unreferenced junk files do not block import', async () => {
+  it('stores every referenced media file under the author-verbatim refs', async () => {
+    await service.importPack(makeMediaPack());
+    expect([...mediaStorage.blobs.keys()]).toEqual([
+      '1/a.png',
+      '1/media/b.png',
+      '1/media/c.mp3',
+      '1/d.png',
+    ]);
+    expect(await mediaStorage.get('1', 'media/c.mp3')).toBeTruthy();
+    // The stored Game JSON stays author-verbatim — refs unchanged.
+    expect(gameService.getById('1')?.rounds[0].topics[0].questions[0].sound).toBe('media/c.mp3');
+  });
+
+  it('unreferenced junk files do not block import and are not stored', async () => {
     await service.importPack(
       zipPack({
         'game.json': gameEntry(makeValidGame()),
@@ -80,6 +102,7 @@ describe('GameImportService', () => {
       }),
     );
     expect(gameService.getById('1')).toBeTruthy();
+    expect(mediaStorage.blobs.size).toBe(0);
     expect(errorService.error()).toBeNull();
   });
 
@@ -167,5 +190,46 @@ describe('GameImportService', () => {
     expect(errorText()).toBe('Игра с Id 1 уже существует');
     expect(router.navigate).not.toHaveBeenCalled();
     expect(gameService.getAll().length).toBe(1);
+  });
+
+  it('rejects an id clash before any media byte is written', async () => {
+    gameService.create(makeValidGame());
+    const put = vi.spyOn(mediaStorage, 'put');
+    await service.importPack(makeMediaPack());
+    expect(put).not.toHaveBeenCalled();
+    expect(errorText()).toBe('Игра с Id 1 уже существует');
+    expect(mediaStorage.blobs.size).toBe(0);
+    expect(gameService.getAll().length).toBe(1);
+  });
+
+  it('rolls back all media writes on quota failure and rejects atomically', async () => {
+    const realPut = mediaStorage.put.bind(mediaStorage);
+    vi.spyOn(mediaStorage, 'put').mockImplementation(async (gameId, path, blob) => {
+      if (path === 'media/c.mp3') {
+        throw new DOMException('quota exceeded', 'QuotaExceededError');
+      }
+      return realPut(gameId, path, blob);
+    });
+    await service.importPack(makeMediaPack());
+    expect(errorText()).toContain('Недостаточно места');
+    expect(errorText()).toContain('Удалите старые игры');
+    expect(gameService.getAll()).toEqual([]);
+    expect(router.navigate).not.toHaveBeenCalled();
+    // IndexedDB left with no trace of the Game: partial writes rolled back.
+    expect(mediaStorage.blobs.size).toBe(0);
+  });
+
+  it('requests persist() exactly once, after the first fully successful import', async () => {
+    const persist = vi.fn(async () => true);
+    Object.defineProperty(navigator, 'storage', { value: { persist }, configurable: true });
+
+    await service.importPack(zipPack({ 'game.json': strToU8('{oops') }));
+    expect(persist).not.toHaveBeenCalled();
+
+    await service.importPack(makeMediaPack());
+    expect(persist).toHaveBeenCalledTimes(1);
+
+    await service.importPack(makeMediaPack()); // now an id-clash reject
+    expect(persist).toHaveBeenCalledTimes(1);
   });
 });
