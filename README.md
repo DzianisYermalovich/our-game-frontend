@@ -4,9 +4,9 @@ A "Своя игра"-style quiz game frontend: players pick questions from them
 them, and accumulate score across rounds and a super round. Built with Angular 22 —
 standalone components, signals, zoneless change detection, strict TypeScript.
 
-The app runs entirely without a backend: a game is configured from a local JSON file
-(`public/assets/temp/initGame.json`) and saved games are stored in the browser's
-`localStorage` (key `games`).
+The app runs entirely without a backend: games enter only by user import of a game-pack
+zip (see `GLOSSARY.md` and `.scratch/game-import/spec.md`), and saved games are stored in
+the browser's `localStorage` (key `games`).
 
 ## Commands
 
@@ -23,7 +23,7 @@ npm test        # unit tests (Vitest + jsdom)
 - `src/app/_services/errors`, `src/app/_services/component-communication` — signal relays: balloon errors and score updates
 - `src/app/game`, `src/app/home`, `src/app/error` — routed screens (home, game list, game board, round, super round, question) and the error balloon
 - `src/assets/styles` — global SCSS partials; Bootstrap 5 imported in `src/assets/styles/main.scss`
-- `public/assets` — runtime assets (game config JSON, sounds)
+- `public/assets` — runtime assets (system sounds)
 - `GLOSSARY.md` — domain vocabulary; `docs/adr` — architecture decisions
 
 ## Notes

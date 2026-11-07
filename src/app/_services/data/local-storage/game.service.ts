@@ -1,11 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { Game } from '../../../_models/game';
-import { ErrorBase } from '../../../_models/error-base';
 import { BalloonErrorService } from '../../errors/balloon-error.service';
 import { GameServiceInterface } from '../game-service-interface';
-import { validateGame } from '../../../_validators/game-validator';
 
 const GAMES_KEY = 'games';
 
@@ -13,9 +9,7 @@ const GAMES_KEY = 'games';
   providedIn: 'root',
 })
 export class GameService implements GameServiceInterface {
-  private readonly http = inject(HttpClient);
   private readonly errorService = inject(BalloonErrorService);
-  private readonly router = inject(Router);
 
   public create(game: Game): Game | null {
     const games = this.getAll();
@@ -47,20 +41,6 @@ export class GameService implements GameServiceInterface {
 
   public update(game: Game): Game | null {
     return null;
-  }
-
-  public initGameFromJson(): void {
-    this.http.get<Game>('assets/temp/initGame.json').subscribe({
-      next: (game) => {
-        const validationError = validateGame(game);
-        if (validationError) {
-          this.sendError(validationError);
-        } else if (this.create(game)) {
-          this.router.navigate(['game', game.id]);
-        }
-      },
-      error: () => this.sendError('Ошибка при загрузке файла конфигураций!'),
-    });
   }
 
   private checkIsGameExist(id: string): boolean {

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { GameService } from '../_services/data/local-storage/game.service';
+import { GameImportService } from '../_services/import/game-import.service';
 
 @Component({
   selector: 'app-home',
@@ -8,11 +8,16 @@ import { GameService } from '../_services/data/local-storage/game.service';
   styleUrl: './home.scss',
 })
 export class Home {
-  private readonly gameService = inject(GameService);
+  private readonly importService = inject(GameImportService);
   private readonly router = inject(Router);
 
-  public newGame(): void {
-    this.gameService.initGameFromJson();
+  public onPackSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const pack = input.files?.[0];
+    input.value = ''; // let the same pack be re-picked after a failed import
+    if (pack) {
+      this.importService.importPack(pack);
+    }
   }
 
   public toGameList(): void {
