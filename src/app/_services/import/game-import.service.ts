@@ -1,27 +1,33 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { unzipSync } from 'fflate';
+import { Unzipped, unzipSync } from 'fflate';
 import { Game } from '../../_models/game';
-import { Question } from '../../_models/question';
 import { GameService } from '../data/local-storage/game.service';
 import { BalloonErrorService } from '../errors/balloon-error.service';
 import { validateGame } from '../../_validators/game-validator';
+import { MEDIA_STORAGE } from '../media/media-storage';
+import { checkMediaRefs, collectMediaRefs } from '../media/media-refs';
 
 /**
- * Imports a Game pack from a user-selected zip file (spec §2–§4, ADR 0003).
+ * Imports a Game pack from a user-selected zip file (spec §2–§5, ADR 0003).
  * Pipeline: unzip → find the single root-level `.json` → parse → validate
- * (structure, fields, media refs) → create Game → navigate to it.
- * Every failure surfaces as a BalloonError in Russian; nothing is stored
- * unless the whole pack is valid.
+ * (structure, fields, media refs) → id-clash pre-check → store media →
+ * create Game → navigate to it.
+ * Every failure surfaces as a BalloonError in Russian. The clash pre-check
+ * runs before any media byte is written, so a reject has nothing to roll
+ * back; a failed media write rolls the whole Game back — media never
+ * outlives its Game.
  */
 @Service()
 export class GameImportService {
   private readonly gameService = inject(GameService);
   private readonly errorService = inject(BalloonErrorService);
+  private readonly mediaStorage = inject(MEDIA_STORAGE);
   private readonly router = inject(Router);
+  private persistRequested = false;
 
   public async importPack(pack: File): Promise<void> {
-    let entries: Record<string, Uint8Array>;
+    let entries: Unzipped;
     try {
       entries = unzipSync(new Uint8Array(await pack.arrayBuffer()));
     } catch {
@@ -64,61 +70,48 @@ export class GameImportService {
       return;
     }
 
-    // create() raises the verbatim id-clash balloon itself and returns null,
-    // leaving storage untouched.
+    // Repeats GameService.create's verbatim reject, but before any media
+    // byte is written — a clash reject has nothing to roll back.
+    if (this.gameService.getById(game.id)) {
+      this.sendError(`Игра с Id ${game.id} уже существует`);
+      return;
+    }
+
+    try {
+      await this.storeMedia(game, entries);
+    } catch {
+      // Atomic reject: no Game entry, no leftover media folder.
+      await this.mediaStorage.deleteGame(game.id).catch(() => {});
+      this.sendError(
+        'Недостаточно места для сохранения игры. Удалите старые игры и попробуйте снова.',
+      );
+      return;
+    }
+
+    // create() re-checks the clash and raises the verbatim balloon itself.
     if (this.gameService.create(game)) {
       this.router.navigate(['game', game.id]);
+      this.requestPersistence();
     }
+  }
+
+  /** Writes every media file the Game references, keyed by the author's ref. */
+  private async storeMedia(game: Game, entries: Unzipped): Promise<void> {
+    for (const ref of new Set(collectMediaRefs(game))) {
+      await this.mediaStorage.put(game.id, ref, new Blob([entries[ref]]));
+    }
+  }
+
+  /** Opts out of best-effort eviction once, after the first successful import. */
+  private requestPersistence(): void {
+    if (this.persistRequested) {
+      return;
+    }
+    this.persistRequested = true;
+    void navigator.storage?.persist?.().catch(() => {});
   }
 
   private sendError(errorText: string): void {
     this.errorService.raise(errorText);
   }
-}
-
-/** Collects every zip-root-relative media ref the Game points at. */
-function collectMediaRefs(game: Game): string[] {
-  const refs: string[] = [...(game.images ?? [])];
-  const questions: Question[] = game.rounds.flatMap((round) =>
-    round.topics.flatMap((topic) => topic.questions),
-  );
-  if (game.superRound) {
-    questions.push(...game.superRound.questions);
-  }
-  for (const question of questions) {
-    refs.push(...(question.image ?? []), question.sound ?? '', question.answerImage ?? '');
-  }
-  return refs.filter((ref) => ref !== '');
-}
-
-/**
- * True when the ref points outside the zip root: absolute (`/x.png`,
- * `C:\x.png`) or climbing out (`../x.png`). Backslash is treated as a
- * separator so Windows-style refs are checked the same way.
- */
-function escapesZipRoot(ref: string): boolean {
-  if (ref.startsWith('/') || ref.startsWith('\\')) {
-    return true;
-  }
-  if (/^[a-zA-Z]:/.test(ref)) {
-    return true;
-  }
-  return ref.split(/[\\/]/).includes('..');
-}
-
-/**
- * Media layer (spec §3): every media ref must resolve to a file inside the
- * zip. Returns null when all refs resolve, otherwise the BalloonError message.
- */
-function checkMediaRefs(game: Game, zipNames: Set<string>): string | null {
-  const refs = collectMediaRefs(game);
-  const escaping = [...new Set(refs.filter((ref) => escapesZipRoot(ref)))];
-  if (escaping.length > 0) {
-    return `Пути выходят за пределы архива: ${escaping.join(', ')}`;
-  }
-  const missing = [...new Set(refs.filter((ref) => !zipNames.has(ref)))];
-  if (missing.length > 0) {
-    return `Отсутствуют файлы в архиве: ${missing.join(', ')}`;
-  }
-  return null;
 }
