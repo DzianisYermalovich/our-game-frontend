@@ -4,6 +4,8 @@ import { provideRouter } from '@angular/router';
 import { Home } from './home';
 import { GameImportService } from '../_services/import/game-import.service';
 import { BalloonErrorService } from '../_services/errors/balloon-error.service';
+import { MEDIA_STORAGE } from '../_services/media/media-storage';
+import { FakeMediaStorage } from '../../testing/fake-media-storage';
 
 describe('Home', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Home>>;
@@ -13,7 +15,7 @@ describe('Home', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: MEDIA_STORAGE, useClass: FakeMediaStorage }],
     }).compileComponents();
     importService = TestBed.inject(GameImportService);
     fixture = TestBed.createComponent(Home);

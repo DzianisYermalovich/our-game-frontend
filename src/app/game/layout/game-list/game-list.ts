@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../../_services/data/local-storage/game.service';
+import { MEDIA_STORAGE } from '../../../_services/media/media-storage';
 import { Game } from '../../../_models/game';
 import { Layout } from '../layout';
 
@@ -12,6 +13,7 @@ import { Layout } from '../layout';
 })
 export class GameList {
   private readonly gameService = inject(GameService);
+  private readonly mediaStorage = inject(MEDIA_STORAGE);
   private readonly router = inject(Router);
 
   public readonly games = signal<Game[]>(this.gameService.getAll());
@@ -22,6 +24,8 @@ export class GameList {
 
   public deleteGame(gameId: string): void {
     this.gameService.delete(gameId);
+    // Media never outlives its Game (spec §5): drop the folder best-effort.
+    void this.mediaStorage.deleteGame(gameId).catch(() => {});
     this.games.set(this.gameService.getAll());
   }
 }
