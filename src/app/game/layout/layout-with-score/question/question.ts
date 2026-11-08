@@ -8,10 +8,12 @@ import { QuestionTypes } from '../../../../_enums/question-types.enum';
 import { PlayerService } from '../../../../_services/data/local-storage/player.service';
 import { User } from '../../../../_models/user';
 import { LayoutWithScore } from '../layout-with-score';
+import { MediaImage } from './media/media-image';
+import { MediaAudio } from './media/media-audio';
 
 @Component({
   selector: 'app-question',
-  imports: [LayoutWithScore, ReactiveFormsModule],
+  imports: [LayoutWithScore, ReactiveFormsModule, MediaImage, MediaAudio],
   templateUrl: './question.html',
   styleUrl: './question.scss',
 })

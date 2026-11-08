@@ -34,14 +34,14 @@
           <div class="row">
             @for (img of question.image; track $index) {
               <div class="col d-flex justify-content-center align-items-center">
-                <img src="/assets/images/{{ img }}" alt="Не правильно указана фотография =(" />
+                <app-media-image [gameId]="gameId" [ref]="img" />
               </div>
             }
           </div>
         }
         @if (question?.sound) {
           <div>
-            <audio src="/assets/sounds/{{ question.sound }}" controls></audio>
+            <app-media-audio [gameId]="gameId" [ref]="question.sound" />
           </div>
         }
         @if (question?.type === QuestionTypes.SUPER) {
@@ -92,7 +92,7 @@
       <div class="col text-center">
         <h1>{{ question?.answer }}</h1>
         @if (question?.answerImage) {
-          <img src="/assets/images/{{ question.answerImage }}" alt="Не правильно указана фотография =(" />
+          <app-media-image [gameId]="gameId" [ref]="question.answerImage" />
         }
         <div>
           <button type="button" class="btn btn-primary m-2" (click)="goToQuestions()">
