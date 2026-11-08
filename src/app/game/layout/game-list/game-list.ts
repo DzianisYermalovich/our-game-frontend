@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../../_services/data/local-storage/game.service';
 import { MEDIA_STORAGE } from '../../../_services/media/media-storage';
+import { GameExportService } from '../../../_services/export/game-export.service';
 import { Game } from '../../../_models/game';
 import { Layout } from '../layout';
 
@@ -14,12 +15,17 @@ import { Layout } from '../layout';
 export class GameList {
   private readonly gameService = inject(GameService);
   private readonly mediaStorage = inject(MEDIA_STORAGE);
+  private readonly exportService = inject(GameExportService);
   private readonly router = inject(Router);
 
   public readonly games = signal<Game[]>(this.gameService.getAll());
 
   public continueGame(gameId: string): void {
     this.router.navigate(['game', gameId]);
+  }
+
+  public exportGame(game: Game): void {
+    void this.exportService.exportGame(game);
   }
 
   public deleteGame(gameId: string): void {
