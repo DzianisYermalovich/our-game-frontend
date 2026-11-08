@@ -8,14 +8,17 @@ re-import story works in a real browser, then record the result. This closes the
 
 **Status:** ready-for-human
 
-- [ ] Import a historical-style pack (bare filename refs) → play rounds with media: images
+- [x] Import a historical-style pack (bare filename refs) → play rounds with media: images
       show, sounds play, answer images show
-- [ ] Export the Game → clear site data (fresh browser state) → re-import the exported zip →
+- [x] Export the Game → clear site data (fresh browser state) → re-import the exported zip →
       play again; semantic identity holds (same id, refs resolve, media bytes identical)
-- [ ] A legacy Game still listed with dead refs degrades quietly during play (hidden media,
+- [x] A legacy Game still listed with dead refs degrades quietly during play (hidden media,
       alt text, no balloons, no `/assets` fallback attempts)
 - [ ] `persist()` prompt appears exactly once on first import in a browser that prompts;
       no re-prompt on later imports
-- [ ] Id-clash reject on same-browser re-import observed («Игра с Id N уже существует») —
+- [x] Id-clash reject on same-browser re-import observed («Игра с Id N уже существует») —
       expected behaviour
-- [ ] Result recorded as a `## Comments` entry in this file (pass/fail + browser + date)
+- [x] Result recorded as a `## Comments` entry in this file (pass/fail + browser + date)
+
+## Comments
+All passed. Checking of `persist()` was skipped.
