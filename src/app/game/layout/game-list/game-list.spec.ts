@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { GameList } from './game-list';
 import { GameService } from '../../../_services/data/local-storage/game.service';
 import { MEDIA_STORAGE } from '../../../_services/media/media-storage';
+import { GameExportService } from '../../../_services/export/game-export.service';
 import { FakeMediaStorage } from '../../../../testing/fake-media-storage';
 import { Game } from '../../../_models/game';
 import { Roles } from '../../../_enums/roles.enum';
@@ -58,6 +60,17 @@ describe('GameList', () => {
 
     expect(TestBed.inject(GameService).getAll()).toEqual([]);
     expect(mediaStorage.blobs.size).toBe(0);
+  });
+
+  it('«Экспортировать» delegates the row Game to the export service', () => {
+    TestBed.inject(GameService).create(makeGame());
+    const exportService = TestBed.inject(GameExportService);
+    const exportSpy = vi.spyOn(exportService, 'exportGame').mockResolvedValue(undefined);
+    const fixture = TestBed.createComponent(GameList);
+
+    fixture.componentInstance.exportGame(fixture.componentInstance.games()[0]);
+
+    expect(exportSpy).toHaveBeenCalledWith(makeGame());
   });
 
   it('deleting one Game keeps other games and their media', async () => {
