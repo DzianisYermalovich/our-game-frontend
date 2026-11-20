@@ -87,7 +87,7 @@
               <button type="button" class="btn btn-primary" (click)="openTemplate(template.id)">
                 Открыть
               </button>
-              <button type="button" class="btn btn-success" (click)="templateId.set(template.id); goTo('create')">
+              <button type="button" class="btn btn-success" (click)="openCreate(template.id)">
                 Создать игру
               </button>
               <button type="button" class="btn btn-secondary" (click)="note.set('Экспорт шаблона в zip — заглушка (экспорт доступен у шаблонов, ticket 06).')">
@@ -115,14 +115,87 @@
     }
 
     @case ('create') {
-      <h2>Создание игры</h2>
-      <p>
-        Экран ввода ростера — решается в ticket 05. Этот вариант фиксирует только то,
-        что вход в него — из шаблона «{{ templates().find(t => t.id === templateId())?.name }}».
-      </p>
-      <button type="button" class="btn btn-secondary" (click)="goTo('templates')">
-        Назад к шаблонам
-      </button>
+      @if (selectedTemplate(); as template) {
+        <h1 class="proto-title">Создание игры</h1>
+        <div class="proto-muted">Шаблон: {{ template.name }} · {{ template.author }}</div>
+
+        <div class="proto-create-form">
+          <input
+            #gameNameInput
+            type="text"
+            class="form-control"
+            placeholder="Название игры (необязательно)"
+            [value]="gameName()"
+            (input)="gameName.set(gameNameInput.value)"
+          />
+        </div>
+        <div class="proto-create-form">
+          <div class="input-group">
+            <input
+              #playerInput
+              type="text"
+              class="form-control"
+              placeholder="Имя игрока"
+              (keyup.enter)="addPlayer(playerInput.value); playerInput.value = ''"
+            />
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="addPlayer(playerInput.value); playerInput.value = ''"
+            >
+              Добавить
+            </button>
+          </div>
+          <div class="proto-hint">Минимум 1 игрок — можно тренироваться соло. Верхнего предела нет.</div>
+        </div>
+
+        <h2 class="h5">Ростер ({{ draftPlayers().length }})</h2>
+        @for (player of draftPlayers(); track player; let i = $index) {
+          <div class="row list-row align-items-center">
+            <div class="col proto-row-name">{{ player }} <span class="proto-muted">· счёт 0</span></div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="removePlayer(i)">
+                Убрать
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="proto-muted">Пока никого — добавьте игроков выше.</div>
+        }
+
+        <div class="proto-create-actions">
+          <button type="button" class="btn btn-success" [disabled]="!canStart()" (click)="startGame()">
+            Начать игру
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="goTo('templates')">
+            Назад к шаблонам
+          </button>
+        </div>
+      }
+    }
+
+    @case ('play') {
+      @if (lastGame(); as game) {
+        <h1 class="proto-title">{{ game.name }}</h1>
+        <div class="proto-muted">Шаблон: {{ templateOfGame()(game)?.name }} · {{ game.created }}</div>
+        <div class="row proto-play-players">
+          @for (player of game.players; track player.name) {
+            <div class="col-2"><h5>{{ player.name }}: {{ player.score }}</h5></div>
+          }
+        </div>
+        <p class="proto-muted">
+          Это существующий игровой экран /games/:gameId — прототип его не повторяет.
+          Счёты нулевые, отвеченных вопросов нет: содержимое шаблона в инстанс игры
+          не копируется, инстанс читает шаблон живьём.
+        </p>
+        <p class="proto-muted">
+          Создайте ещё одну игру из этого же шаблона — ростер начнётся с пустого,
+          ничего из этой игры не перейдёт.
+        </p>
+        <button type="button" class="btn btn-secondary" (click)="goTo('home')">
+          К списку игр
+        </button>
+      }
     }
   }
 </main>

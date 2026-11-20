@@ -54,6 +54,27 @@
   margin: 0 0 1rem;
 }
 
+.proto-create-form {
+  max-width: 24rem;
+  margin: 0.75rem 0;
+}
+
+.proto-hint {
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+}
+
+.proto-create-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.proto-play-players {
+  margin: 0.75rem 0;
+}
+
 .proto-muted {
   color: rgba(255, 255, 255, 0.75);
   font-size: 0.9rem;
