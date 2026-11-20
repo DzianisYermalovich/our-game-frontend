@@ -1,0 +1,71 @@
+@use '../../assets/styles/common/collors' as *;
+
+.proto-header {
+  position: sticky;
+  top: 0;
+  z-index: 1500;
+}
+
+.proto-brand {
+  font-weight: 600;
+}
+
+// Shell fills the viewport exactly: host flexes, main takes the rest — no
+// calc() math, no slivers of white body showing through.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.proto-content {
+  flex: 1 1 auto;
+  background-color: $color-main;
+  // Column so the template view can flex-fill the screen without page scroll.
+  // (Flex items don't collapse margins, so no top padding is needed here.)
+  display: flex;
+  flex-direction: column;
+}
+
+.proto-title {
+  margin: 0 0 1.25rem;
+}
+
+.proto-game-cards {
+  margin-bottom: 1.5rem;
+}
+
+// Row/card primary text — kept identical to the game cards for a uniform look.
+.proto-game-card .card-title {
+  color: #212529;
+}
+
+.proto-row-name {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.proto-card-muted {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.proto-toolbar {
+  margin: 0 0 1rem;
+}
+
+.proto-muted {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+}
+
+.list-row {
+  border-bottom: solid 1px $color-white;
+  &:first-of-type {
+    border-top: solid 1px $color-white;
+  }
+}
+
+.proto-note {
+  margin-top: 0.75rem;
+}

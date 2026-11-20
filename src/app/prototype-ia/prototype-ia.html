@@ -1,0 +1,14 @@
+@switch (variant()) {
+  @case ('A') {
+    <app-prototype-variant-a />
+  }
+  @case ('B') {
+    <app-prototype-variant-b />
+  }
+  @case ('C') {
+    <app-prototype-variant-c />
+  }
+}
+@if (devMode) {
+  <app-prototype-switcher [current]="variant()" (change)="select($event)" />
+}

@@ -1,0 +1,148 @@
+<div class="row proto-frame">
+  <div class="col-10 proto-main">
+    @switch (view()) {
+      @case ('rounds') {
+        @for (round of template().rounds; track round.name; let index = $index) {
+          <div class="row align-items-center proto-round-row">
+            <div class="col-2">Раунд{{ index + 1 }}:</div>
+            <div class="col-8">{{ round.name }}</div>
+            <div class="col-2 d-flex align-items-center">
+              <button type="button" class="btn btn-primary" (click)="openRound(index)">
+                Смотреть
+              </button>
+            </div>
+          </div>
+        }
+        @if (template().superRound; as superRound) {
+          <div class="row align-items-center proto-round-row">
+            <div class="col-2"></div>
+            <div class="col-8">Супер раунд</div>
+            <div class="col-2">
+              <button type="button" class="btn btn-primary" (click)="openSuper()">
+                Смотреть
+              </button>
+            </div>
+          </div>
+        }
+        <p class="proto-hint">
+          Просмотр шаблона повторяет игровой ход: раунды → сетка → вопрос. Без счёта, ставок
+          и звуков; ответ виден сразу. Правка пакета появится здесь позже.
+        </p>
+      }
+
+      @case ('grid') {
+        @if (currentRound(); as round) {
+          <div class="proto-grid">
+            @for (topic of round.topics; track topic.name) {
+              <div class="proto-grid-row">
+                <div
+                  class="proto-cell proto-topic-cell"
+                  [style.width.%]="100 / (topic.questions.length + 1)"
+                >
+                  <h4>{{ topic.name }}</h4>
+                </div>
+                @for (q of topic.questions; track q.price) {
+                  <div
+                    class="proto-cell proto-question-cell"
+                    [style.width.%]="100 / (topic.questions.length + 1)"
+                  >
+                    <button
+                      type="button"
+                      class="btn proto-price-btn"
+                      (click)="openQuestion(q)"
+                    >
+                      <span class="proto-price-num">{{ q.price }}</span>
+                      <span class="proto-cell-text proto-clamp">{{ q.text }}</span>
+                      <span class="proto-cell-text proto-cell-answer proto-clamp">{{ q.answer }}</span>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @case ('super') {
+        @if (template().superRound; as superRound) {
+          <div class="proto-grid">
+            @for (topic of superRound.topics; track topic.name) {
+              @for (q of topic.questions; track q.price) {
+                <div class="proto-super-row" (click)="openSuperQuestion(q)">
+                  <div class="proto-super-topic">
+                    <h2>{{ topic.name }}</h2>
+                  </div>
+                  <div class="proto-super-cell">
+                    <span class="proto-cell-text proto-super-text proto-clamp">{{ q.text }}</span>
+                  </div>
+                  <div class="proto-super-cell">
+                    <span class="proto-cell-text proto-cell-answer proto-super-text proto-clamp">{{ q.answer }}</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      }
+
+      @case ('question') {
+        @if (question(); as q) {
+          <div class="proto-fill d-flex flex-column justify-content-center text-center">
+            <h1>{{ q.text }}</h1>
+            @if (q.media; as media) {
+              <div class="proto-media-box mx-auto">
+                Медиа: {{ media === 'image' ? 'изображение' : 'аудио' }} — в игре здесь
+                воспроизводится файл из хранилища шаблона
+              </div>
+            }
+            <p class="proto-answer-line">Ответ: {{ q.answer }}</p>
+            <div>
+              <button type="button" class="btn btn-primary" (click)="backToQuestions()">
+                К вопросам
+              </button>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+
+  <div class="col-2 proto-sidebar">
+    <div><span class="badge bg-warning text-dark">только просмотр</span></div>
+    <p class="proto-sidebar-author">{{ template().name }}</p>
+    <p class="proto-sidebar-author proto-muted">Автор: {{ template().author }}</p>
+
+    @if (view() !== 'rounds') {
+      <div><button type="button" class="btn btn-secondary" (click)="backToRounds()">К раундам</button></div>
+    }
+    <div><button type="button" class="btn btn-success" (click)="create.emit()">Создать игру</button></div>
+    @if (mode() === 'A') {
+      <div>
+        <button type="button" class="btn btn-secondary" (click)="exportStub()">
+          Экспортировать
+        </button>
+      </div>
+    }
+
+    @if (mode() === 'B') {
+      <div class="proto-sidebar-games">
+        <h5>Игры по этому шаблону</h5>
+        @for (game of games(); track game.id) {
+          <div class="proto-sidebar-game">
+            <div>{{ game.name }}</div>
+            <div class="proto-muted proto-sidebar-roster">{{ roster(game) }}</div>
+            <button type="button" class="btn btn-sm btn-primary" (click)="continueStub(game)">
+              Продолжить
+            </button>
+          </div>
+        } @empty {
+          <div class="proto-muted">Игр пока нет.</div>
+        }
+      </div>
+    }
+
+    <div class="proto-sidebar-bottom">
+      <button type="button" class="btn btn-secondary" (click)="close.emit()">К шаблонам</button>
+    </div>
+  </div>
+</div>

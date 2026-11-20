@@ -1,3 +1,4 @@
+import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 import { Home } from './home/home';
 import { GameList } from './game/layout/game-list/game-list';
@@ -33,4 +34,15 @@ export const routes: Routes = [
     path: 'game/:gameId/round/:roundId/question/:questionId',
     component: QuestionComponent,
   },
+  // PROTOTYPE (decision ticket 04, throwaway): IA variants route, dev-only so a
+  // stray merge can't ship it — dropped at runtime in prod builds.
+  ...(isDevMode()
+    ? [
+        {
+          path: 'prototype/ia',
+          loadComponent: () =>
+            import('./prototype-ia/prototype-ia').then((m) => m.PrototypeIa),
+        },
+      ]
+    : []),
 ];

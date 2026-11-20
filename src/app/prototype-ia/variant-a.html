@@ -1,0 +1,159 @@
+<header class="navbar bg-light justify-content-start navbar-expand proto-header">
+  <button type="button" class="navbar-brand btn btn-link proto-brand" (click)="goTo('home')">
+    OurGame
+  </button>
+  <div class="navbar-nav">
+    <button
+      type="button"
+      class="nav-item nav-link btn btn-link"
+      [class.active]="screen() === 'templates' || screen() === 'template'"
+      (click)="goTo('templates')"
+    >
+      Шаблоны
+    </button>
+    <button
+      type="button"
+      class="nav-item nav-link btn btn-link"
+      [class.active]="screen() === 'games'"
+      (click)="goTo('games')"
+    >
+      Мои игры
+    </button>
+  </div>
+</header>
+
+<main class="container-fluid proto-content">
+  @if (note()) {
+    <div class="alert alert-info proto-note" role="status">
+      {{ note() }}
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="note.set('')">
+        Ок
+      </button>
+    </div>
+  }
+
+  @switch (screen()) {
+    @case ('home') {
+      <h1 class="text-center proto-title">Своя игра</h1>
+      <div class="row justify-content-center proto-doors">
+        <div class="col-5">
+          <div class="card proto-door">
+            <div class="card-body">
+              <h2 class="card-title h4">Шаблоны игр</h2>
+              <p class="card-text">Шаблонов: {{ templates().length }}. Импортируйте новый пакет или откройте готовый.</p>
+              <button type="button" class="btn btn-primary" (click)="goTo('templates')">
+                Открыть шаблоны
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="card proto-door">
+            <div class="card-body">
+              <h2 class="card-title h4">Мои игры</h2>
+              <p class="card-text">Игр: {{ games().length }}. Продолжите начатую партию.</p>
+              <button type="button" class="btn btn-primary" (click)="goTo('games')">
+                Открыть игры
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @case ('templates') {
+      <div class="row align-items-center proto-toolbar">
+        <div class="col">
+          <h2>Шаблоны игр</h2>
+        </div>
+        <div class="col-auto">
+          <button type="button" class="btn btn-secondary" (click)="note.set('Импорт пакета — заглушка прототипа: здесь фиксируется только место входа.')">
+            Импортировать пакет
+          </button>
+        </div>
+      </div>
+      @for (template of templates(); track template.id) {
+        <div class="row list-row align-items-center">
+          <div class="col-4">
+            <div>{{ template.name }}</div>
+            <div class="proto-muted">Автор: {{ template.author }}</div>
+          </div>
+          <div class="col-3 proto-muted">
+            Раундов: {{ template.rounds.length }} · Вопросов: {{ countQuestions(template) }}
+          </div>
+          <div class="col-5 d-flex align-items-center justify-content-end">
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" (click)="openTemplate(template.id)">
+                Открыть
+              </button>
+              <button type="button" class="btn btn-success" (click)="templateId.set(template.id); goTo('create')">
+                Создать игру
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="note.set('Экспорт шаблона в zip — заглушка (в этом варианте экспорт живёт у шаблонов, ticket 06).')">
+                Экспортировать
+              </button>
+              <button type="button" class="btn btn-danger" (click)="removeTemplate(template.id)">
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="text-center">Шаблонов пока нет — импортируйте пакет.</div>
+      }
+    }
+
+    @case ('template') {
+      @if (selectedTemplate(); as template) {
+        <app-proto-template-view
+          [template]="template"
+          [games]="gamesOfTemplate()"
+          mode="A"
+          (create)="createFromSelected()"
+          (close)="goTo('templates')"
+          (note)="note.set($event)"
+        />
+      }
+    }
+
+    @case ('games') {
+      <h2>Мои игры</h2>
+      @if (games().length > 0) {
+        @for (game of games(); track game.id) {
+          <div class="row list-row align-items-center">
+            <div class="col-4">
+              <div>{{ game.name }}</div>
+              <div class="proto-muted">
+                Шаблон: {{ templates().find(t => t.id === game.templateId)?.name ?? 'удалён' }} · {{ game.created }}
+              </div>
+            </div>
+            <div class="col-5 proto-muted">{{ roster(game) }}</div>
+            <div class="col-3 d-flex align-items-center justify-content-end">
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary" (click)="note.set('Продолжить открывает существующий экран игры /games/:gameId — в прототипе не играем.')">
+                  Продолжить игру
+                </button>
+                <button type="button" class="btn btn-danger" (click)="removeGame(game.id)">
+                  Удалить
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="text-center">У вас нет игр — создайте из шаблона.</div>
+      }
+    }
+
+    @case ('create') {
+      <h2>Создание игры</h2>
+      <p>
+        Экран ввода ростера — решается в ticket 05. Этот вариант фиксирует только то,
+        что вход в него — из шаблона «{{ templates().find(t => t.id === templateId())?.name }}».
+      </p>
+      <button type="button" class="btn btn-secondary" (click)="goTo('templates')">
+        Назад к шаблонам
+      </button>
+    }
+  }
+</main>
