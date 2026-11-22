@@ -1,4 +1,5 @@
 import { Game } from '../app/_models/game';
+import { GameTemplate } from '../app/_models/game-template';
 import { QuestionTypes } from '../app/_enums/question-types.enum';
 import { Roles } from '../app/_enums/roles.enum';
 
@@ -12,6 +13,45 @@ export function makeValidGame(id = '1'): Game {
       { id: '2', name: 'Player 1', role: Roles.PLAYER },
       { id: '3', name: 'Player 2', role: Roles.PLAYER },
     ],
+    rounds: [
+      {
+        id: 'r1',
+        name: 'Round 1',
+        topics: [
+          {
+            id: 't1',
+            name: 'Topic 1',
+            questions: [
+              { id: 'q1', type: QuestionTypes.REGULAR, text: 'Q1', answer: 'A1' },
+              { id: 'q2', type: QuestionTypes.AUCTION, text: 'Q2', answer: 'A2' },
+            ],
+          },
+        ],
+      },
+    ],
+    superRound: {
+      id: 's1',
+      questions: [
+        { id: 'sq1', type: QuestionTypes.SUPER, topic: 'Super topic', text: 'SQ1', answer: 'SA1' },
+      ],
+    },
+    settings: {
+      id: '0',
+      topicsInRound: 1,
+      questionsInTopic: 2,
+      superQuestions: 1,
+      minPrice: 100,
+      rounds: 1,
+    },
+  };
+}
+
+/** A minimal GameTemplate (the Game content minus roster and state). */
+export function makeGameTemplate(id = 't-1', name = 'Test game template'): GameTemplate {
+  return {
+    id,
+    name,
+    author: { id: '0', name: 'Author', role: Roles.ADMIN },
     rounds: [
       {
         id: 'r1',
