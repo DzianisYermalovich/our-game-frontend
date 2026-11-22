@@ -1,0 +1,151 @@
+<app-layout>
+  @if (template; as t) {
+    <div class="row template-frame">
+      <div class="col-10 template-main">
+        @switch (view()) {
+          @case ('rounds') {
+            @for (round of t.rounds; track round.id; let index = $index) {
+              <div class="row align-items-center template-round-row">
+                <div class="col-2">Раунд{{ index + 1 }}:</div>
+                <div class="col-8">{{ round.name }}</div>
+                <div class="col-2 d-flex align-items-center">
+                  <button type="button" class="btn btn-primary" (click)="openRound(index)">
+                    Смотреть
+                  </button>
+                </div>
+              </div>
+            }
+            <div class="row align-items-center template-round-row">
+              <div class="col-2"></div>
+              <div class="col-8">Супер раунд</div>
+              <div class="col-2">
+                <button type="button" class="btn btn-primary" (click)="openSuper()">
+                  Смотреть
+                </button>
+              </div>
+            </div>
+            <p class="template-hint">
+              Просмотр шаблона повторяет игровой ход: раунды → сетка → вопрос. Без счёта, ставок и
+              звуков; ответ виден сразу. Правка пакета появится здесь позже.
+            </p>
+          }
+
+          @case ('grid') {
+            @if (currentRound(); as round) {
+              <div class="template-grid">
+                @for (topic of round.topics; track topic.id) {
+                  <div class="template-grid-row">
+                    <div
+                      class="template-cell template-topic-cell"
+                      [style.width.%]="100 / (topic.questions.length + 1)"
+                    >
+                      <h4>{{ topic.name }}</h4>
+                    </div>
+                    @for (q of topic.questions; track q.id; let qIndex = $index) {
+                      <div
+                        class="template-cell template-question-cell"
+                        [style.width.%]="100 / (topic.questions.length + 1)"
+                      >
+                        <button
+                          type="button"
+                          class="btn template-price-btn"
+                          (click)="openQuestion(q)"
+                        >
+                          <span class="template-price-num">{{
+                            priceFor(roundIndex(), qIndex)
+                          }}</span>
+                          <span class="template-cell-text template-clamp">{{ q.text }}</span>
+                          <span class="template-cell-text template-cell-answer template-clamp">{{
+                            q.answer
+                          }}</span>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          @case ('super') {
+            <div class="template-grid">
+              @for (q of t.superRound.questions; track q.id) {
+                <div
+                  class="template-super-row"
+                  role="button"
+                  tabindex="0"
+                  (click)="openSuperQuestion(q)"
+                  (keydown.enter)="openSuperQuestion(q)"
+                  (keydown.space)="$event.preventDefault(); openSuperQuestion(q)"
+                >
+                  <div class="template-super-topic">
+                    <h2>{{ q.topic }}</h2>
+                  </div>
+                  <div class="template-super-cell">
+                    <span class="template-cell-text template-super-text template-clamp">{{
+                      q.text
+                    }}</span>
+                  </div>
+                  <div class="template-super-cell">
+                    <span
+                      class="template-cell-text template-cell-answer template-super-text template-clamp"
+                      >{{ q.answer }}</span
+                    >
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @case ('question') {
+            @if (question(); as q) {
+              <div class="template-fill d-flex flex-column justify-content-center text-center">
+                <h1>{{ q.text }}</h1>
+                @for (ref of q.image ?? []; track ref) {
+                  <app-media-image class="mx-auto" [storageId]="templateId" [ref]="ref" />
+                }
+                @if (q.sound) {
+                  <app-media-audio class="mx-auto" [storageId]="templateId" [ref]="q.sound" />
+                }
+                <p class="template-answer-line">Ответ: {{ q.answer }}</p>
+                @if (q.answerImage) {
+                  <app-media-image
+                    class="mx-auto"
+                    [storageId]="templateId"
+                    [ref]="q.answerImage"
+                    alt="Ответ — изображение"
+                  />
+                }
+                <div>
+                  <button type="button" class="btn btn-primary" (click)="backToQuestions()">
+                    К вопросам
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        }
+      </div>
+
+      <div class="col-2 template-sidebar">
+        <div><span class="badge bg-warning text-dark">только просмотр</span></div>
+        <p class="template-sidebar-name">{{ t.name }}</p>
+        <p class="template-sidebar-name template-muted">Автор: {{ t.author.name }}</p>
+
+        @if (view() !== 'rounds') {
+          <div>
+            <button type="button" class="btn btn-secondary" (click)="backToRounds()">
+              К раундам
+            </button>
+          </div>
+        }
+
+        <div class="template-sidebar-bottom">
+          <button type="button" class="btn btn-secondary" (click)="toTemplates()">
+            К шаблонам
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</app-layout>

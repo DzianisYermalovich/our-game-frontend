@@ -1,14 +1,14 @@
-import { Game } from '../../_models/game';
+import { GameTemplate } from '../../_models/game-template';
 import { Question } from '../../_models/question';
 
-/** Collects every zip-root-relative media ref the Game points at. */
-export function collectMediaRefs(game: Game): string[] {
-  const refs: string[] = [...(game.images ?? [])];
-  const questions: Question[] = game.rounds.flatMap((round) =>
+/** Collects every zip-root-relative media ref the GameTemplate points at. */
+export function collectMediaRefs(template: GameTemplate): string[] {
+  const refs: string[] = [...(template.images ?? [])];
+  const questions: Question[] = template.rounds.flatMap((round) =>
     round.topics.flatMap((topic) => topic.questions),
   );
-  if (game.superRound) {
-    questions.push(...game.superRound.questions);
+  if (template.superRound) {
+    questions.push(...template.superRound.questions);
   }
   for (const question of questions) {
     refs.push(...(question.image ?? []), question.sound ?? '', question.answerImage ?? '');
@@ -35,8 +35,8 @@ function escapesZipRoot(ref: string): boolean {
  * Media layer (spec §3): every media ref must resolve to a file inside the
  * zip. Returns null when all refs resolve, otherwise the BalloonError message.
  */
-export function checkMediaRefs(game: Game, zipNames: Set<string>): string | null {
-  const refs = collectMediaRefs(game);
+export function checkMediaRefs(template: GameTemplate, zipNames: Set<string>): string | null {
+  const refs = collectMediaRefs(template);
   const escaping = [...new Set(refs.filter((ref) => escapesZipRoot(ref)))];
   if (escaping.length > 0) {
     return `Пути выходят за пределы архива: ${escaping.join(', ')}`;

@@ -33,4 +33,14 @@ export const routes: Routes = [
     path: 'game/:gameId/round/:roundId/question/:questionId',
     component: QuestionComponent,
   },
+  // The templates world (ticket 10): the library and the import landing.
+  {
+    path: 'templates',
+    loadComponent: () => import('./templates/templates').then((m) => m.Templates),
+  },
+  {
+    path: 'templates/:templateId',
+    loadComponent: () =>
+      import('./templates/template-view/template-view').then((m) => m.TemplateView),
+  },
 ];

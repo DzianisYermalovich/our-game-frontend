@@ -31,7 +31,7 @@ export class GameList {
   public deleteGame(gameId: string): void {
     this.gameService.delete(gameId);
     // Media never outlives its Game (spec §5): drop the folder best-effort.
-    void this.mediaStorage.deleteGame(gameId).catch(() => {});
+    void this.mediaStorage.deleteAll(gameId).catch(() => {});
     this.games.set(this.gameService.getAll());
   }
 }

@@ -3,10 +3,6 @@
     <div class="col">
       <h1 class="text-center">Своя игра</h1>
       <div class="text-center">
-        <input #packInput type="file" accept=".zip" hidden (change)="onPackSelected($event)" />
-        <button type="button" class="btn btn-primary" (click)="packInput.click()">
-          Новая игра
-        </button>
         <button type="button" class="btn btn-secondary" (click)="toGameList()">
           Продолжить игру
         </button>

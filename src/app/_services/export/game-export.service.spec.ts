@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { strToU8, unzipSync } from 'fflate';
 import { GameExportService } from './game-export.service';
-import { GameImportService } from '../import/game-import.service';
 import { GameService } from '../data/local-storage/game.service';
 import { BalloonErrorService } from '../errors/balloon-error.service';
 import { MEDIA_STORAGE } from '../media/media-storage';
@@ -22,12 +21,16 @@ function makeGameWithMedia(): Game {
 }
 
 function mediaBytes(): Record<string, string> {
-  return { 'a.png': 'png-bytes', 'media/b.png': 'png-bytes', 'media/c.mp3': 'mp3-bytes', 'd.png': 'png-bytes' };
+  return {
+    'a.png': 'png-bytes',
+    'media/b.png': 'png-bytes',
+    'media/c.mp3': 'mp3-bytes',
+    'd.png': 'png-bytes',
+  };
 }
 
 describe('GameExportService', () => {
   let service: GameExportService;
-  let importService: GameImportService;
   let gameService: GameService;
   let errorService: BalloonErrorService;
   let mediaStorage: FakeMediaStorage;
@@ -40,7 +43,6 @@ describe('GameExportService', () => {
       providers: [provideRouter([]), { provide: MEDIA_STORAGE, useClass: FakeMediaStorage }],
     });
     service = TestBed.inject(GameExportService);
-    importService = TestBed.inject(GameImportService);
     gameService = TestBed.inject(GameService);
     errorService = TestBed.inject(BalloonErrorService);
     mediaStorage = TestBed.inject(MEDIA_STORAGE) as FakeMediaStorage;
@@ -64,43 +66,6 @@ describe('GameExportService', () => {
   async function unzipDownload(): Promise<Record<string, Uint8Array>> {
     return unzipSync(new Uint8Array(await downloads[0].blob.arrayBuffer()));
   }
-
-  it('round-trips: the exported zip re-imports to a semantically identical Game', async () => {
-    const game = makeGameWithMedia();
-    gameService.create(game);
-    for (const [ref, bytes] of Object.entries(mediaBytes())) {
-      await mediaStorage.put('1', ref, new Blob([strToU8(bytes)]));
-    }
-
-    await service.exportGame(game);
-    expect(errorService.error()).toBeNull();
-    expect(downloads).toHaveLength(1);
-    expect(downloads[0].name).toBe('TestGame 1.zip');
-
-    // Fresh browser state: only the exported zip travels over.
-    localStorage.clear();
-    mediaStorage.blobs.clear();
-    await importService.importPack(
-      new File([new Uint8Array(await downloads[0].blob.arrayBuffer())], 'export.zip'),
-    );
-
-    expect(errorService.error()).toBeNull();
-    expect(router.navigate).toHaveBeenCalledWith(['game', '1']);
-    // Same id and same Game, compared semantically — never byte-wise.
-    expect(gameService.getById('1')).toEqual(game);
-    // Same refs, same media bytes.
-    expect([...mediaStorage.blobs.keys()].sort()).toEqual(
-      Object.keys(mediaBytes()).map((ref) => `1/${ref}`).sort(),
-    );
-    for (const [ref, bytes] of Object.entries(mediaBytes())) {
-      const stored = await mediaStorage.get('1', ref);
-      // Array.from: fflate yields Node-realm typed arrays under jsdom — same
-      // bytes, different prototype, so compare plain number arrays.
-      expect(Array.from(new Uint8Array(await stored!.arrayBuffer()))).toEqual(
-        Array.from(strToU8(bytes)),
-      );
-    }
-  });
 
   it('writes the stored Game verbatim as the single root-level game.json', async () => {
     const game = makeValidGame();

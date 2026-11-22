@@ -34,14 +34,14 @@
           <div class="row">
             @for (img of question.image; track $index) {
               <div class="col d-flex justify-content-center align-items-center">
-                <app-media-image [gameId]="gameId" [ref]="img" />
+                <app-media-image [storageId]="gameId" [ref]="img" />
               </div>
             }
           </div>
         }
         @if (question?.sound) {
           <div>
-            <app-media-audio [gameId]="gameId" [ref]="question.sound" />
+            <app-media-audio [storageId]="gameId" [ref]="question.sound" />
           </div>
         }
         @if (question?.type === QuestionTypes.SUPER) {
@@ -56,7 +56,11 @@
                 <h5 class="card-title">{{ player.name }}</h5>
                 @if (question?.type !== QuestionTypes.REGULAR) {
                   <div class="mb-3">
-                    <input [formControlName]="player.id" class="form-control" placeholder="Ставка" />
+                    <input
+                      [formControlName]="player.id"
+                      class="form-control"
+                      placeholder="Ставка"
+                    />
                   </div>
                 }
                 <div class="btn-group">
@@ -92,7 +96,7 @@
       <div class="col text-center">
         <h1>{{ question?.answer }}</h1>
         @if (question?.answerImage) {
-          <app-media-image [gameId]="gameId" [ref]="question.answerImage" />
+          <app-media-image [storageId]="gameId" [ref]="question.answerImage" />
         }
         <div>
           <button type="button" class="btn btn-primary m-2" (click)="goToQuestions()">

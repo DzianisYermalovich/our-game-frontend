@@ -19,7 +19,7 @@ describe('MediaAudio', () => {
 
   function makeComponent(ref: string): ComponentFixture<MediaAudio> {
     const fixture = TestBed.createComponent(MediaAudio);
-    fixture.componentRef.setInput('gameId', 'game-1');
+    fixture.componentRef.setInput('storageId', 'game-1');
     fixture.componentRef.setInput('ref', ref);
     return fixture;
   }

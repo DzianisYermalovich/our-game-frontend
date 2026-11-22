@@ -1,0 +1,20 @@
+// Typography per the IA polish (ticket 04): page title, row name and meta
+// sizes shared with the games world.
+.templates-title {
+  font-size: 2rem;
+  margin-bottom: 0;
+}
+
+.templates-toolbar {
+  margin-bottom: 1rem;
+}
+
+.template-name {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.template-meta {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}

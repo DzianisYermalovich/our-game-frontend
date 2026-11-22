@@ -7,27 +7,27 @@ const STORE_NAME = 'media';
 
 /**
  * v1 MediaStorage (spec §5, ADR 0002): one IndexedDB object store, string
- * keys "<gameId>/<path>", Blob values via structured clone, prefix-range
- * delete per Game. Not auto-provided: it is bound to MEDIA_STORAGE in
+ * keys "<templateId>/<path>", Blob values via structured clone, prefix-range
+ * delete per template id. Not auto-provided: it is bound to MEDIA_STORAGE in
  * app.config, so a future backend swaps in behind the same interface.
  */
 @Service({ autoProvided: false })
 export class IdbMediaStorage implements MediaStorage {
   private db?: Promise<IDBDatabase>;
 
-  public async put(gameId: string, path: string, blob: Blob): Promise<void> {
+  public async put(id: string, path: string, blob: Blob): Promise<void> {
     const store = await this.store('readwrite');
-    await asPromise(store.put(blob, mediaKey(gameId, path)));
+    await asPromise(store.put(blob, mediaKey(id, path)));
   }
 
-  public async get(gameId: string, path: string): Promise<Blob | undefined> {
+  public async get(id: string, path: string): Promise<Blob | undefined> {
     const store = await this.store('readonly');
-    return asPromise<Blob | undefined>(store.get(mediaKey(gameId, path)));
+    return asPromise<Blob | undefined>(store.get(mediaKey(id, path)));
   }
 
-  public async deleteGame(gameId: string): Promise<void> {
-    // The "gameId/…" range covers exactly this Game's folder.
-    const range = IDBKeyRange.bound(`${gameId}/`, `${gameId}/\uffff`, false, true);
+  public async deleteAll(id: string): Promise<void> {
+    // The "id/…" range covers exactly this template's folder.
+    const range = IDBKeyRange.bound(`${id}/`, `${id}/￿`, false, true);
     const store = await this.store('readwrite');
     await asPromise(store.delete(range));
   }
@@ -54,8 +54,8 @@ export class IdbMediaStorage implements MediaStorage {
   }
 }
 
-function mediaKey(gameId: string, path: string): string {
-  return `${gameId}/${path}`;
+function mediaKey(id: string, path: string): string {
+  return `${id}/${path}`;
 }
 
 function asPromise<T>(request: IDBRequest<T>): Promise<T> {
