@@ -42,12 +42,12 @@ describe('IdbMediaStorage', () => {
     expect(await text(await storage.get('1', 'a.png'))).toBe('new');
   });
 
-  it('deleteGame wipes the whole game folder and nothing else', async () => {
+  it('deleteAll wipes the whole folder and nothing else', async () => {
     await storage.put('1', 'a.png', blob('a'));
     await storage.put('1', 'media/b.png', blob('b'));
     await storage.put('2', 'a.png', blob('a2'));
 
-    await storage.deleteGame('1');
+    await storage.deleteAll('1');
 
     expect(await storage.get('1', 'a.png')).toBeUndefined();
     expect(await storage.get('1', 'media/b.png')).toBeUndefined();

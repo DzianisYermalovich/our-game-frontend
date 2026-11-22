@@ -1,26 +1,30 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Unzipped, unzipSync } from 'fflate';
-import { Game } from '../../_models/game';
-import { GameService } from '../data/local-storage/game.service';
+import { GameTemplate } from '../../_models/game-template';
+import { Question } from '../../_models/question';
+import { GameTemplateService } from '../data/local-storage/game-template.service';
 import { BalloonErrorService } from '../errors/balloon-error.service';
-import { validateGame } from '../../_validators/game-validator';
+import { validateGameTemplate } from '../../_validators/game-template-validator';
 import { MEDIA_STORAGE } from '../media/media-storage';
 import { checkMediaRefs, collectMediaRefs } from '../media/media-refs';
+import { generateUuid } from '../../_utils/uuid';
 
 /**
- * Imports a Game pack from a user-selected zip file (spec §2–§5, ADR 0003).
- * Pipeline: unzip → find the single root-level `.json` → parse → validate
- * (structure, fields, media refs) → id-clash pre-check → store media →
- * create Game → navigate to it.
- * Every failure surfaces as a BalloonError in Russian. The clash pre-check
- * runs before any media byte is written, so a reject has nothing to roll
- * back; a failed media write rolls the whole Game back — media never
- * outlives its Game.
+ * Imports a user-selected pack zip as a read-only GameTemplate (spec §4,
+ * ADR 0004). Pipeline: unzip → find the single root-level `.json` → parse →
+ * validate → construct the GameTemplate (fresh uuids everywhere — the pack's
+ * ids are never read; players and answered flags are dropped by construction)
+ * → media-ref check → name-clash pre-check before any media byte (a reject
+ * has nothing to roll back) → store media under the fresh template id →
+ * create re-checks and raises the verbatim balloon → navigate to
+ * /templates/:id. Every failure surfaces as a BalloonError in Russian; a
+ * failed media write rolls the whole template back — media never outlives
+ * its template.
  */
 @Service()
 export class GameImportService {
-  private readonly gameService = inject(GameService);
+  private readonly templateService = inject(GameTemplateService);
   private readonly errorService = inject(BalloonErrorService);
   private readonly mediaStorage = inject(MEDIA_STORAGE);
   private readonly router = inject(Router);
@@ -31,7 +35,7 @@ export class GameImportService {
     try {
       entries = unzipSync(new Uint8Array(await pack.arrayBuffer()));
     } catch {
-      this.sendError('Не удалось распаковать архив с игрой');
+      this.sendError('Не удалось распаковать архив с шаблоном игры');
       return;
     }
 
@@ -56,49 +60,53 @@ export class GameImportService {
       this.sendError('Неправильная структура файла-конфигурации');
       return;
     }
-    const game = parsed as Game;
+    const parsedPack = parsed as GameTemplate;
 
-    const validationError = validateGame(game);
+    // The validator runs on the parsed pack: it names problems in untrusted
+    // input, and every field it blesses is carried verbatim into the stored
+    // template — the fresh uuids written by buildTemplate are never checked.
+    const validationError = validateGameTemplate(parsedPack);
     if (validationError) {
       this.sendError(validationError);
       return;
     }
+    const template = buildTemplate(parsedPack);
 
-    const mediaError = checkMediaRefs(game, new Set(Object.keys(entries)));
+    const mediaError = checkMediaRefs(template, new Set(Object.keys(entries)));
     if (mediaError) {
       this.sendError(mediaError);
       return;
     }
 
-    // Repeats GameService.create's verbatim reject, but before any media
-    // byte is written — a clash reject has nothing to roll back.
-    if (this.gameService.getById(game.id)) {
-      this.sendError(`Игра с Id ${game.id} уже существует`);
+    // Repeats GameTemplateService.create's verbatim reject, but before any
+    // media byte is written — a clash reject has nothing to roll back.
+    if (this.templateService.getByName(template.name)) {
+      this.sendError(`Шаблон игры с названием «${template.name}» уже существует`);
       return;
     }
 
     try {
-      await this.storeMedia(game, entries);
+      await this.storeMedia(template, entries);
     } catch {
-      // Atomic reject: no Game entry, no leftover media folder.
-      await this.mediaStorage.deleteGame(game.id).catch(() => {});
+      // Atomic reject: no template entry, no leftover media folder.
+      await this.mediaStorage.deleteAll(template.id!).catch(() => {});
       this.sendError(
-        'Недостаточно места для сохранения игры. Удалите старые игры и попробуйте снова.',
+        'Недостаточно места для сохранения шаблона игры. Удалите старые шаблоны и попробуйте снова.',
       );
       return;
     }
 
     // create() re-checks the clash and raises the verbatim balloon itself.
-    if (this.gameService.create(game)) {
-      this.router.navigate(['game', game.id]);
+    if (this.templateService.create(template)) {
+      this.router.navigate(['templates', template.id]);
       this.requestPersistence();
     }
   }
 
-  /** Writes every media file the Game references, keyed by the author's ref. */
-  private async storeMedia(game: Game, entries: Unzipped): Promise<void> {
-    for (const ref of new Set(collectMediaRefs(game))) {
-      await this.mediaStorage.put(game.id, ref, new Blob([entries[ref]]));
+  /** Writes every media file the template references, keyed by its ref. */
+  private async storeMedia(template: GameTemplate, entries: Unzipped): Promise<void> {
+    for (const ref of new Set(collectMediaRefs(template))) {
+      await this.mediaStorage.put(template.id!, ref, new Blob([entries[ref]]));
     }
   }
 
@@ -114,4 +122,46 @@ export class GameImportService {
   private sendError(errorText: string): void {
     this.errorService.raise(errorText);
   }
+}
+
+/**
+ * Builds the stored GameTemplate from the validated pack: fresh uuids for
+ * the template, author, settings and every round/topic/question; the pack's
+ * id fields and players list are never read, so roster and answered flags
+ * are dropped by construction.
+ */
+function buildTemplate(pack: GameTemplate): GameTemplate {
+  return {
+    id: generateUuid(),
+    name: pack.name,
+    author: { ...pack.author, id: generateUuid() },
+    rounds: pack.rounds.map((round) => ({
+      id: generateUuid(),
+      name: round.name,
+      topics: round.topics.map((topic) => ({
+        id: generateUuid(),
+        name: topic.name,
+        questions: topic.questions.map(buildQuestion),
+      })),
+    })),
+    superRound: {
+      id: generateUuid(),
+      questions: (pack.superRound?.questions ?? []).map(buildQuestion),
+    },
+    settings: { ...pack.settings, id: generateUuid() },
+    images: pack.images,
+  };
+}
+
+function buildQuestion(question: Question): Question {
+  return {
+    id: generateUuid(),
+    type: question.type,
+    topic: question.topic,
+    text: question.text,
+    answer: question.answer,
+    image: question.image,
+    sound: question.sound,
+    answerImage: question.answerImage,
+  };
 }

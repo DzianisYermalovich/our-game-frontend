@@ -1,0 +1,41 @@
+<app-layout>
+  <div class="row align-items-center templates-toolbar">
+    <div class="col">
+      <h1 class="templates-title">Шаблоны</h1>
+    </div>
+    <div class="col-auto">
+      <input #packInput type="file" accept=".zip" hidden (change)="onPackSelected($event)" />
+      <button type="button" class="btn btn-secondary" (click)="packInput.click()">
+        Импортировать пакет
+      </button>
+    </div>
+  </div>
+  @if (templates().length > 0) {
+    @for (template of templates(); track template.id) {
+      <div class="row list-row align-items-center">
+        <div class="col-4">
+          <div class="template-name">{{ template.name }}</div>
+          <div class="template-meta">Автор: {{ template.author.name }}</div>
+        </div>
+        <div class="col-3 template-meta">
+          Раундов: {{ template.rounds.length }} · Вопросов: {{ countQuestions(template) }}
+        </div>
+        <div class="col-5 d-flex align-items-center justify-content-end">
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary" (click)="openTemplate(template.id!)">
+              Открыть
+            </button>
+            <button type="button" class="btn btn-success" (click)="exportTemplate(template)">
+              Экспортировать
+            </button>
+            <button type="button" class="btn btn-danger" (click)="deleteTemplate(template.id!)">
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="text-center template-meta">У вас нет шаблонов — импортируйте пакет.</div>
+  }
+</app-layout>

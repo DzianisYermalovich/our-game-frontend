@@ -2,12 +2,15 @@
   <a [routerLink]="['/']" class="navbar-brand"> OurGame </a>
   <div class="navbar-nav">
     <a
-      [routerLink]="['/game']"
+      [routerLink]="['/']"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       class="nav-item nav-link"
     >
-      Список игр
+      Мои игры
+    </a>
+    <a [routerLink]="['/templates']" routerLinkActive="active" class="nav-item nav-link">
+      Шаблоны
     </a>
   </div>
 </header>

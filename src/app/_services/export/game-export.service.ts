@@ -4,18 +4,16 @@ import { Game } from '../../_models/game';
 import { BalloonErrorService } from '../errors/balloon-error.service';
 import { MEDIA_STORAGE } from '../media/media-storage';
 import { collectMediaRefs } from '../media/media-refs';
+import { sanitizeFileName } from '../../_utils/file-name';
 
 /**
- * Exports a saved Game as an import-format zip (spec §6): `game.json` at the
- * root (the stored Game verbatim) plus every referenced media file at its
- * zip-root-relative path, downloaded as `<game name>.zip`. The manual backup
- * against browser-storage loss (Safari 7-day wipe, LRU pressure, cleared
- * site data); `persist()` remains the only automatic guardrail. Missing
- * media is skip + warn, never block: unresolvable refs are listed in a
- * balloon and the export succeeds without them; a legacy Game with no
- * stored media exports as a JSON-only zip. Round-trip guarantee is semantic
- * identity (same id, refs, media bytes), not byte-identical JSON — a
- * same-browser re-import trips the import id-clash reject, by design.
+ * Exports a saved Game as an import-format zip (game-import spec §6):
+ * `game.json` at the root (the stored Game verbatim) plus every referenced
+ * media file at its zip-root-relative path, downloaded as `<game name>.zip`.
+ * The manual backup against browser-storage loss; missing media is skip +
+ * warn, never block. TRANSITIONAL (ticket 06/10): under the template/instance
+ * split the exportable thing is the GameTemplate — this game-side service and
+ * its button retire with the atomic swap (ticket 11).
  */
 @Service()
 export class GameExportService {
@@ -51,17 +49,4 @@ export class GameExportService {
     // Revoked on the next macrotask: the click's fetch of the blob URL has started.
     setTimeout(() => URL.revokeObjectURL(url));
   }
-}
-
-/**
- * The zip download name: Windows-forbidden characters (< > : " / \ | ? * and
- * control chars) become underscores, trailing dots/spaces are dropped, and a
- * name that sanitizes to nothing falls back to «игра».
- */
-function sanitizeFileName(name: string): string {
-  const cleaned = name
-    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_')
-    .replace(/[. ]+$/, '')
-    .trim();
-  return cleaned || 'игра';
 }
