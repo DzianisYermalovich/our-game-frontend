@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameTemplate } from '../../_models/game-template';
 import { Question } from '../../_models/question';
 import { GameTemplateService } from '../../_services/data/local-storage/game-template.service';
+import { Layout } from '../../game/layout/layout';
 import { MediaImage } from '../../game/layout/layout-with-score/question/media/media-image';
 import { MediaAudio } from '../../game/layout/layout-with-score/question/media/media-audio';
 
@@ -19,7 +20,7 @@ type View = 'rounds' | 'grid' | 'super' | 'question';
 
 @Component({
   selector: 'app-template-view',
-  imports: [MediaImage, MediaAudio],
+  imports: [Layout, MediaImage, MediaAudio],
   templateUrl: './template-view.html',
   styleUrl: './template-view.scss',
 })

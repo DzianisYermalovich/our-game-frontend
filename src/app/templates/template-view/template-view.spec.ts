@@ -55,6 +55,14 @@ describe('TemplateView', () => {
     expect(text).toContain('только просмотр');
   });
 
+  it('carries the global header («Мои игры» | «Шаблоны»)', () => {
+    TestBed.inject(GameTemplateService).create(makeGameTemplate());
+    const fixture = create('t-1');
+    const header = fixture.nativeElement.querySelector('header');
+    expect(header?.textContent).toContain('Мои игры');
+    expect(header?.textContent).toContain('Шаблоны');
+  });
+
   it('the grid shows derived prices (minPrice × position)', () => {
     TestBed.inject(GameTemplateService).create(makeGameTemplate());
     const fixture = create('t-1');
@@ -63,8 +71,8 @@ describe('TemplateView', () => {
     );
     seeButtons[0]!.click();
     fixture.detectChanges();
-    const prices = [...fixture.nativeElement.querySelectorAll('.template-price-num')].map(
-      (cell) => cell.textContent?.trim(),
+    const prices = [...fixture.nativeElement.querySelectorAll('.template-price-num')].map((cell) =>
+      cell.textContent?.trim(),
     );
     // minPrice 100: first question ×1×1, second ×2×1.
     expect(prices).toEqual(['100', '200']);

@@ -8,17 +8,20 @@ reframed it: model media storage like S3 — keys are `"<gameId>/<path>"` (a fol
 the zip's subfolder structure preserved, `path` being exactly the author's zip-root-relative
 reference), accessed only through a narrow interface:
 
-- `put(gameId, path, blob)`, `get(gameId, path)`, `deleteGame(gameId)`
+- `put(id, path, blob)`, `get(id, path)`, `deleteAll(id)` — keys keep the
+  `"<ownerId>/<path>"` shape; the owner id was the Game's id until ADR 0004
+  retargeted it to the GameTemplate id, and `deleteGame(gameId)` was renamed
+  `deleteAll(id)` to drop the Game wording
 
 The v1 implementation is `IdbMediaStorage` (one IndexedDB object store, string keys, Blob
 values via structured clone, prefix-range delete per Game). A future `S3MediaStorage` or any
 other backend implements the same interface. Because the reference *is* the storage key, the
 stored Game JSON stays author-verbatim — no hashes, no manifest, no mapping layer.
 
-Accepted consequences: no cross-Game dedupe (identical bytes in two packs are stored twice —
-negligible); media files are stored as-is without integrity hashing; deleting a Game must
-always call `deleteGame` so media never outlives its Game; export enumerates media via the
-Game JSON's own refs, so the interface needs no `list()`.
+Accepted consequences: no cross-owner dedupe (identical bytes in two packs are stored twice —
+negligible); media files are stored as-is without integrity hashing; deleting a template must
+always call `deleteAll` so media never outlives its template; export enumerates media via the
+stored JSON's own refs, so the interface needs no `list()`.
 
 Considered options: content-hash keys + a path→hash mapping (rejected: an entire mapping
 layer and manifest/index design existed only to serve hash keys, which bought cross-Game
