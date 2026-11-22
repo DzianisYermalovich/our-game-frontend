@@ -104,22 +104,25 @@ export function validateGameTemplate(template: GameTemplate): string | null {
   }
 
   if (!template.rounds || template.rounds.length !== template.settings.rounds) {
-    return `Неправильное колличство раундов в файле-конфигурации`;
+    return `Неправильное количество раундов в файле-конфигурации`;
   }
   for (const [roundIndex, round] of template.rounds.entries()) {
     const roundNo = roundIndex + 1;
     if (!round.topics || round.topics.length !== template.settings.topicsInRound) {
-      return `Неправильное колличство тем в раунде ${roundNo} у файла-конфигурации`;
+      return `Неправильное количество тем в раунде ${roundNo} у файла-конфигурации`;
     }
     for (const [topicIndex, topic] of round.topics.entries()) {
       const topicNo = topicIndex + 1;
       if (!topic.questions || topic.questions.length !== template.settings.questionsInTopic) {
-        return `Неправильное колличство вопросов в теме ${topicNo} у файла-конфигурации`;
+        return `Неправильное количество вопросов в теме ${topicNo} у файла-конфигурации`;
       }
     }
   }
-  if (!template.superRound || template.superRound.questions.length !== template.settings.superQuestions) {
-    return `Неправильное колличство вопросов в супер раунде у файла-конфигурации`;
+  if (
+    !template.superRound ||
+    template.superRound.questions.length !== template.settings.superQuestions
+  ) {
+    return `Неправильное количество вопросов в супер раунде у файла-конфигурации`;
   }
   if (!template.settings.minPrice) {
     return `Не указана минимальная стоимость в настройках у файла-конфигурации`;

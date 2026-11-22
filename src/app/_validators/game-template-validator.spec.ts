@@ -21,7 +21,7 @@ describe('validateGameTemplate', () => {
     const template = makeGameTemplate();
     template.rounds = [];
     expect(validateGameTemplate(template)).toBe(
-      'Неправильное колличство раундов в файле-конфигурации',
+      'Неправильное количество раундов в файле-конфигурации',
     );
   });
 
@@ -29,7 +29,7 @@ describe('validateGameTemplate', () => {
     const template = makeGameTemplate();
     template.rounds[0].topics = [];
     expect(validateGameTemplate(template)).toBe(
-      'Неправильное колличство тем в раунде 1 у файла-конфигурации',
+      'Неправильное количество тем в раунде 1 у файла-конфигурации',
     );
   });
 
@@ -37,7 +37,7 @@ describe('validateGameTemplate', () => {
     const template = makeGameTemplate();
     template.rounds[0].topics[0].questions = [];
     expect(validateGameTemplate(template)).toBe(
-      'Неправильное колличство вопросов в теме 1 у файла-конфигурации',
+      'Неправильное количество вопросов в теме 1 у файла-конфигурации',
     );
   });
 
@@ -45,7 +45,7 @@ describe('validateGameTemplate', () => {
     const template = makeGameTemplate();
     template.superRound.questions = [];
     expect(validateGameTemplate(template)).toBe(
-      'Неправильное колличство вопросов в супер раунде у файла-конфигурации',
+      'Неправильное количество вопросов в супер раунде у файла-конфигурации',
     );
   });
 
@@ -137,7 +137,9 @@ describe('validateGameTemplate', () => {
   it('rejects a null topic instead of throwing, naming the round by index', () => {
     const template = makeGameTemplate();
     Object.assign(template.rounds[0], { topics: [null] });
-    expect(validateGameTemplate(template)).toBe('Неправильная тема в раунде 1 в файле-конфигурации');
+    expect(validateGameTemplate(template)).toBe(
+      'Неправильная тема в раунде 1 в файле-конфигурации',
+    );
   });
 
   it('rejects a null question instead of throwing, citing indexes', () => {
@@ -164,7 +166,7 @@ describe('validateGameTemplate', () => {
   it('rejects a missing superRound via the structural count check', () => {
     const template = Object.assign(makeGameTemplate(), { superRound: undefined });
     expect(validateGameTemplate(template)).toBe(
-      'Неправильное колличство вопросов в супер раунде у файла-конфигурации',
+      'Неправильное количество вопросов в супер раунде у файла-конфигурации',
     );
   });
 

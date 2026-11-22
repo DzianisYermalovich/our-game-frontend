@@ -15,13 +15,14 @@ import { mediaObjectUrl } from '../../../../../_services/media/media-object-url'
   `,
 })
 export class MediaAudio {
-  public readonly gameId = input.required<string>();
+  /** MediaStorage owner id (ADR 0002 keys): Game id in legacy play, GameTemplate id elsewhere. */
+  public readonly storageId = input.required<string>();
   /** Zip-root-relative media ref, exactly as authored in the Game JSON. */
   public readonly ref = input.required<string>();
 
   /** Blob object URL for the ref; undefined until resolved or when missing. */
   public readonly url = mediaObjectUrl(
-    () => this.gameId(),
+    () => this.storageId(),
     () => this.ref(),
   );
 }

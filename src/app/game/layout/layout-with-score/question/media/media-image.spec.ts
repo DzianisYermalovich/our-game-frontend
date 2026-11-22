@@ -19,7 +19,7 @@ describe('MediaImage', () => {
 
   function makeComponent(ref: string): ComponentFixture<MediaImage> {
     const fixture = TestBed.createComponent(MediaImage);
-    fixture.componentRef.setInput('gameId', 'game-1');
+    fixture.componentRef.setInput('storageId', 'game-1');
     fixture.componentRef.setInput('ref', ref);
     return fixture;
   }
@@ -81,11 +81,11 @@ describe('MediaImage', () => {
     expect(objectUrls.revoked).toEqual(objectUrls.created);
   });
 
-  it('re-resolves through the seam when gameId changes (per-game key isolation)', async () => {
+  it('re-resolves through the seam when the storage id changes (per-owner key isolation)', async () => {
     await mediaStorage.put('other-game', 'media/a.png', new Blob(['a']));
     const fixture = makeComponent('media/a.png');
-    fixture.componentRef.setInput('gameId', 'game-1');
-    fixture.componentRef.setInput('gameId', 'other-game');
+    fixture.componentRef.setInput('storageId', 'game-1');
+    fixture.componentRef.setInput('storageId', 'other-game');
 
     await settle(fixture);
 

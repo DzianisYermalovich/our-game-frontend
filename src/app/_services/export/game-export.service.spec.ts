@@ -21,7 +21,12 @@ function makeGameWithMedia(): Game {
 }
 
 function mediaBytes(): Record<string, string> {
-  return { 'a.png': 'png-bytes', 'media/b.png': 'png-bytes', 'media/c.mp3': 'mp3-bytes', 'd.png': 'png-bytes' };
+  return {
+    'a.png': 'png-bytes',
+    'media/b.png': 'png-bytes',
+    'media/c.mp3': 'mp3-bytes',
+    'd.png': 'png-bytes',
+  };
 }
 
 describe('GameExportService', () => {

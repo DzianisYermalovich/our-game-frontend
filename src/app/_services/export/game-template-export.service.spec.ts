@@ -152,8 +152,8 @@ describe('GameTemplateExportService', () => {
     expect(downloads[0].name).toBe('Шаблон_ _ЧП__ _ больш _ тест _ раз.zip');
   });
 
-  it('falls back to «игра» when the name sanitizes to nothing', async () => {
+  it('falls back to «шаблон» when the name sanitizes to nothing', async () => {
     await service.exportTemplate(makeGameTemplate('t-1', '...'));
-    expect(downloads[0].name).toBe('игра.zip');
+    expect(downloads[0].name).toBe('шаблон.zip');
   });
 });

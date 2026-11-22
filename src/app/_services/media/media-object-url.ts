@@ -13,14 +13,14 @@ import { MEDIA_STORAGE } from './media-storage';
  * to `/assets` paths.
  */
 export function mediaObjectUrl(
-  gameId: () => string,
+  storageId: () => string,
   ref: () => string,
 ): Signal<string | undefined> {
   const mediaStorage = inject(MEDIA_STORAGE);
   const url = signal<string | undefined>(undefined);
 
   effect((onCleanup) => {
-    const id = gameId();
+    const id = storageId();
     const path = ref();
     if (!id || !path) {
       return;

@@ -85,8 +85,8 @@ export class TemplateView {
   }
 
   /** The price play shows for the same cell: minPrice × position (spec §7). */
-  protected priceFor(roundIndex: number, questionIndex: number): number {
+  protected priceFor(roundPosition: number, questionPosition: number): number {
     const minPrice = this.template?.settings.minPrice ?? 0;
-    return minPrice * (questionIndex + 1) * (roundIndex + 1);
+    return minPrice * (questionPosition + 1) * (roundPosition + 1);
   }
 }

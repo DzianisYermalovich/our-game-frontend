@@ -70,7 +70,14 @@
           @case ('super') {
             <div class="template-grid">
               @for (q of t.superRound.questions; track q.id) {
-                <div class="template-super-row" (click)="openSuperQuestion(q)">
+                <div
+                  class="template-super-row"
+                  role="button"
+                  tabindex="0"
+                  (click)="openSuperQuestion(q)"
+                  (keydown.enter)="openSuperQuestion(q)"
+                  (keydown.space)="$event.preventDefault(); openSuperQuestion(q)"
+                >
                   <div class="template-super-topic">
                     <h2>{{ q.topic }}</h2>
                   </div>
@@ -95,16 +102,16 @@
               <div class="template-fill d-flex flex-column justify-content-center text-center">
                 <h1>{{ q.text }}</h1>
                 @for (ref of q.image ?? []; track ref) {
-                  <app-media-image class="mx-auto" [gameId]="templateId" [ref]="ref" />
+                  <app-media-image class="mx-auto" [storageId]="templateId" [ref]="ref" />
                 }
                 @if (q.sound) {
-                  <app-media-audio class="mx-auto" [gameId]="templateId" [ref]="q.sound" />
+                  <app-media-audio class="mx-auto" [storageId]="templateId" [ref]="q.sound" />
                 }
                 <p class="template-answer-line">Ответ: {{ q.answer }}</p>
                 @if (q.answerImage) {
                   <app-media-image
                     class="mx-auto"
-                    [gameId]="templateId"
+                    [storageId]="templateId"
                     [ref]="q.answerImage"
                     alt="Ответ — изображение"
                   />

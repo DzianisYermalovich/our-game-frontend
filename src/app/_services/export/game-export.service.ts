@@ -44,7 +44,7 @@ export class GameExportService {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${sanitizeFileName(gameName)}.zip`;
+    anchor.download = `${sanitizeFileName(gameName, 'игра')}.zip`;
     anchor.click();
     // Revoked on the next macrotask: the click's fetch of the blob URL has started.
     setTimeout(() => URL.revokeObjectURL(url));

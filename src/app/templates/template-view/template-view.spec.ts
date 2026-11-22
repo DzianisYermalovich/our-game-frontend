@@ -106,6 +106,22 @@ describe('TemplateView', () => {
     expect(text).toContain('SA1');
   });
 
+  it('the super row is keyboard-activatable (role="button")', () => {
+    TestBed.inject(GameTemplateService).create(makeGameTemplate());
+    const fixture = create('t-1');
+    [...fixture.nativeElement.querySelectorAll('button')]
+      .filter((button) => button.textContent?.includes('Смотреть'))
+      .at(-1)!
+      .click();
+    fixture.detectChanges();
+    const row = fixture.nativeElement.querySelector('.template-super-row') as HTMLElement;
+    expect(row.getAttribute('role')).toBe('button');
+    row.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('SQ1');
+  });
+
   it('«К шаблонам» navigates back to the library', () => {
     TestBed.inject(GameTemplateService).create(makeGameTemplate());
     const fixture = create('t-1');
